@@ -60,7 +60,7 @@
 			</dependencies>
 		</profile>
 	</profiles>
-	<name>javalang</name>
+	<name>walkmod-javalang-plugin</name>
 	<scm>
 		<url>https://github.com/rpau/javalang</url>
 		<connection>https://github.com/rpau/javalang.git</connection>
