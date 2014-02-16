@@ -12,4 +12,9 @@
 		
 	<bean id="org.walkmod:walkmod-javalang-plugin:field-policy" class="org.walkmod.merge.FieldDeclarationPolicy"></bean>
 
+	<bean id="org.walkmod:walkmod-javalang-plugin:template" class="org.walkmod.templates.DefaultTemplateVisitor"
+		singleton="false">
+		<property name="templateEngine" ref="walkmod:commons:groovy" />
+	</bean>
+
 </beans>
