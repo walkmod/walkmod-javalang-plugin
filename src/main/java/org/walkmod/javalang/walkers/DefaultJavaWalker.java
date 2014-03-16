@@ -327,6 +327,9 @@ public class DefaultJavaWalker extends AbstractWalker {
 					throw new WalkModException(e);
 				}
 			}
+			else{
+				result = targetNode;
+			}
 		}
 		return result;
 	}
@@ -339,6 +342,6 @@ public class DefaultJavaWalker extends AbstractWalker {
 		}
 		throw new WalkModException(
 				"Illegal typeDeclaration list, for compilationUnit. No public type found");
-		// TODO faltaria poner qu� compilationUnit es. Hacer un assert?
+		// TODO faltaria poner quï¿½ compilationUnit es. Hacer un assert?
 	}
 }
