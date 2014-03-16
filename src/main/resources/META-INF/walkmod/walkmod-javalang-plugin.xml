@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+   "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.walkmod:walkmod-javalang-plugin:walker" class="org.walkmod.javalang.walkers.DefaultJavaWalker"
+		singleton="false" />
+	
+	<bean id="org.walkmod:walkmod-javalang-plugin:string-writer" class="org.walkmod.javalang.writers.StringWriter"
+		singleton="false" />
+		
+	<bean id="org.walkmod:walkmod-javalang-plugin:field-policy" class="org.walkmod.javalang.merger.FieldDeclarationPolicy"></bean>
+
+	<bean id="org.walkmod:walkmod-javalang-plugin:template" class="org.walkmod.javalang.visitors.DefaultTemplateVisitor"
+		singleton="false">
+		<property name="templateEngine" ref="walkmod:commons:groovy" />
+	</bean>
+	
+	<bean id="walkmod:commons:groovy" class="org.walkmod.templates.groovy.GroovyTemplateEngine" />
+
+</beans>
