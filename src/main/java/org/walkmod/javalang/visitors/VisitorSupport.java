@@ -37,7 +37,7 @@ public abstract class VisitorSupport<A>  extends VoidVisitorAdapter<A> implement
 		if (queryEngine == null) {
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			parameters.put("language", "groovy");
-			List<String> includes = new LinkedList<String>();
+			List<String> includes = new LinkedList<String>();			
 			includes.add("query.alias.groovy");
 			parameters.put("includes", includes);
 			
