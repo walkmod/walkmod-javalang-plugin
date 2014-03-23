@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.walkmod.exceptions.WalkModException;
-import org.walkmod.javalang.ASTManager;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.body.ModifierSet;
 import org.walkmod.javalang.ast.body.TypeDeclaration;
@@ -30,9 +29,10 @@ import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.util.FileUtils;
 import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.ChangeLogPrinter;
+import org.walkmod.walkers.Parser;
 import org.walkmod.walkers.VisitorContext;
 
-public class DefaultJavaWalker extends AbstractWalker {
+public class DefaultJavaWalker extends AbstractWalker  {
 
 	private File originalFile;
 
@@ -53,6 +53,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 	private Map<String, Integer> unmodified = new HashMap<String, Integer>();
 
 	private String encoding = "UTF-8";
+	
+	private Parser<CompilationUnit> parser;
 
 	public void accept(File file) throws Exception {
 		originalFile = file;
@@ -63,7 +65,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 		if (file.getName().endsWith(".java")) {
 			CompilationUnit cu = null;
 			try {
-				cu = ASTManager.parse(file, encoding);
+				cu = parser.parse(file, encoding);
 			} catch (Exception e) {
 				throw new WalkModException("The file " + file.getPath()
 						+ " has an invalid java format", e);
@@ -105,7 +107,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 				CompilationUnit returningCU = (CompilationUnit) element;
 				CompilationUnit cu = null;
 				try {
-					cu = ASTManager.parse(originalFile, encoding);
+					cu = parser.parse(originalFile, encoding);
 				} catch (Exception e) {
 					throw new WalkModException("Exception writing results of "
 							+ originalFile.getPath(), e);
@@ -322,7 +324,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 			File sourceFile = new File(path);
 			if (sourceFile.exists()) {
 				try {
-					result = ASTManager.parse(sourceFile);
+					result = parser.parse(sourceFile);
 				} catch (Exception e) {
 					throw new WalkModException(e);
 				}
@@ -342,6 +344,17 @@ public class DefaultJavaWalker extends AbstractWalker {
 		}
 		throw new WalkModException(
 				"Illegal typeDeclaration list, for compilationUnit. No public type found");
-		// TODO faltaria poner quï¿½ compilationUnit es. Hacer un assert?
+		// TODO faltaria poner que compilationUnit es. Hacer un assert?
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setParser(Parser<?> parser) {
+		this.parser = (Parser<CompilationUnit>) parser;
+	}
+
+	@Override
+	public Parser<?> getParser() {
+		return parser;
 	}
 }
