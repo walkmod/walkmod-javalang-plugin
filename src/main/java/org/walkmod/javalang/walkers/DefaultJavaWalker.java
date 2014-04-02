@@ -32,7 +32,7 @@ import org.walkmod.walkers.ChangeLogPrinter;
 import org.walkmod.walkers.Parser;
 import org.walkmod.walkers.VisitorContext;
 
-public class DefaultJavaWalker extends AbstractWalker  {
+public class DefaultJavaWalker extends AbstractWalker {
 
 	private File originalFile;
 
@@ -53,7 +53,7 @@ public class DefaultJavaWalker extends AbstractWalker  {
 	private Map<String, Integer> unmodified = new HashMap<String, Integer>();
 
 	private String encoding = "UTF-8";
-	
+
 	private Parser<CompilationUnit> parser;
 
 	public void accept(File file) throws Exception {
@@ -328,8 +328,7 @@ public class DefaultJavaWalker extends AbstractWalker  {
 				} catch (Exception e) {
 					throw new WalkModException(e);
 				}
-			}
-			else{
+			} else {
 				result = targetNode;
 			}
 		}
@@ -357,4 +356,5 @@ public class DefaultJavaWalker extends AbstractWalker  {
 	public Parser<?> getParser() {
 		return parser;
 	}
+	
 }
