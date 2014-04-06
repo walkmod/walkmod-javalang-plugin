@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.walkmod.exceptions.WalkModException;
-import org.walkmod.javalang.ASTManager;
 import org.walkmod.javalang.ast.BlockComment;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.ImportDeclaration;
@@ -220,7 +220,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 	private <T extends Node> void inferASTChanges(List<T> nodes1, List<T> nodes2) {
 		if (nodes1 != null) {
 			for (T id : nodes1) {
-				if (ASTManager.isNewNode(id)) {
+				if (id.isNewNode()) {
 					VisitorContext vc = new VisitorContext();
 					vc.put(NODE_TO_COMPARE_KEY, null);
 					vc.put(MAP_TO_UPDATE_KEY, ADD_ACTION_KEY);
@@ -234,8 +234,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					T id = null;
 					while (it.hasNext() && !found) {
 						id = it.next();
-						found = ASTManager
-								.isEqualLocation((Node) id, (Node) oi);
+						found = ((Node) id)
+								.isInEqualLocation((Node) oi);
 					}
 					if (found) {
 						VisitorContext vc = new VisitorContext();

@@ -31,7 +31,7 @@ public class DefaultJavaParser implements Parser<CompilationUnit> {
 	@Override
 	public CompilationUnit parse(String text) throws ParseException {
 		try {
-			return ASTManager.parseCompilationUnit(text, true);
+			return ASTManager.parse(text, true);
 		} catch (Exception e) {
 			throw new ParseException(e.getCause());
 		}
@@ -40,7 +40,7 @@ public class DefaultJavaParser implements Parser<CompilationUnit> {
 	public CompilationUnit parse(String text, boolean withoutLocation)
 			throws ParseException {
 		try {
-			return ASTManager.parseCompilationUnit(text, withoutLocation);
+			return ASTManager.parse(text, withoutLocation);
 		} catch (Exception e) {
 			throw new ParseException(e.getCause());
 		}
