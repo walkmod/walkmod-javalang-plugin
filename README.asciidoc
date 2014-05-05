@@ -2,6 +2,8 @@ walkmod-javalang-plugin
 =======================
 Raquel Pau <raquelpau@gmail.com>
 
+image:https://travis-ci.org/rpau/walkmod-javalang-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/rpau/walkmod-javalang-plugin"]
+
 This is a walkmod plugin to support apply coding conventions in Java source files. It also specified the 
 default components used by walkmod to process Java source files.  
 
