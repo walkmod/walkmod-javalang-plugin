@@ -9,7 +9,7 @@ default components used by walkmod to process Java source files.
 
 walkmod-javalang-plugin is a default plugin loaded via  http://www.walkmod.com[walkmod]. So, you just need 
 to add the plugin in your `${PROJECT}/walkmod.xml` file when you wants upgrade the used version without 
-downloading walkmod again. 
+downloading walkmod again.  
 
 ----
 <!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-1.0.dtd" >
