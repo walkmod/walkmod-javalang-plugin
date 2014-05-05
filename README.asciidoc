@@ -1,0 +1,30 @@
+walkmod-javalang-plugin
+=======================
+Raquel Pau <raquelpau@gmail.com>
+
+This is a walkmod plugin to support apply coding conventions in Java source files. It also specified the 
+default components used by walkmod to process Java source files.  
+
+== Usage
+
+walkmod-javalang-plugin is a default plugin loaded via  http://www.walkmod.com[walkmod]. So, you just need 
+to add the plugin in your `${PROJECT}/walkmod.xml` file when you wants upgrade the used version without 
+downloading walkmod again. 
+
+----
+<!DOCTYPE walkmod PUBLIC "-//WALKMOD//DTD"  "http://www.walkmod.com/dtd/walkmod-1.0.dtd" >
+<walkmod>
+  <plugins>
+    <plugin groupId="org.walkmod" artifactId="walkmod-javalang-plugin" version="1.0.1" />
+  </plugins>
+</walkmod>
+----
+
+
+== Contributing
+
+If you want to hack on this, fork it, improve it and send me a pull request.
+
+To get started using it, just clone it and call mvn install. 
+
+

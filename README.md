@@ -1,2 +1,0 @@
-walkmod-javalang-plugin
-=======================
