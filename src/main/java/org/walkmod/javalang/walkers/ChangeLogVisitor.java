@@ -65,11 +65,13 @@ import org.walkmod.javalang.ast.expr.FieldAccessExpr;
 import org.walkmod.javalang.ast.expr.InstanceOfExpr;
 import org.walkmod.javalang.ast.expr.IntegerLiteralExpr;
 import org.walkmod.javalang.ast.expr.IntegerLiteralMinValueExpr;
+import org.walkmod.javalang.ast.expr.LambdaExpr;
 import org.walkmod.javalang.ast.expr.LongLiteralExpr;
 import org.walkmod.javalang.ast.expr.LongLiteralMinValueExpr;
 import org.walkmod.javalang.ast.expr.MarkerAnnotationExpr;
 import org.walkmod.javalang.ast.expr.MemberValuePair;
 import org.walkmod.javalang.ast.expr.MethodCallExpr;
+import org.walkmod.javalang.ast.expr.MethodReferenceExpr;
 import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.ast.expr.NormalAnnotationExpr;
 import org.walkmod.javalang.ast.expr.NullLiteralExpr;
@@ -169,7 +171,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 		} finally {
 			try {
-				if(stream != null){
+				if (stream != null) {
 					stream.close();
 				}
 			} catch (IOException e) {
@@ -234,8 +236,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					T id = null;
 					while (it.hasNext() && !found) {
 						id = it.next();
-						found = ((Node) id)
-								.isInEqualLocation((Node) oi);
+						found = ((Node) id).isInEqualLocation((Node) oi);
 					}
 					if (found) {
 						VisitorContext vc = new VisitorContext();
@@ -261,6 +262,36 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				}
 			}
 		}
+	}
+
+	private <T extends Node> void inferASTChangesList(List<List<T>> nodes1,
+			List<List<T>> nodes2) {
+		if (nodes1 != null) {
+			if (nodes2 == null) {
+				for (List<T> elem : nodes1) {
+					inferASTChanges(null, elem);
+				}
+			} else {
+				Iterator<List<T>> it1 = nodes1.iterator();
+				Iterator<List<T>> it2 = nodes2.iterator();
+				while (it1.hasNext() || it2.hasNext()) {
+					if (it1.hasNext() && it2.hasNext()) {
+						inferASTChanges(it1.next(), it2.next());
+					} else if (!it1.hasNext()) {
+						inferASTChanges(null, it2.next());
+					} else {
+						inferASTChanges(it1.next(), null);
+					}
+				}
+			}
+		} else {
+			if (nodes2 != null) {
+				for (List<T> elem : nodes2) {
+					inferASTChanges(null, elem);
+				}
+			}
+		}
+
 	}
 
 	private <T extends Node> void inferASTChanges(T n1, T n2) {
@@ -447,6 +478,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			TypeParameter aux = (TypeParameter) o;
+			inferASTChanges(n.getAnnotations(), aux.getAnnotations());
 			inferASTChanges(n.getTypeBound(), aux.getTypeBound());
 			if (!isUpdated()) {
 				if (n.getName().equals(aux.getName())) {
@@ -490,7 +522,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			if (!isUpdated()) {
 				if (n.getName().equals(aux.getName())
 						&& n.getArrayCount() == aux.getArrayCount()
-						&& n.getModifiers() == aux.getModifiers()) {
+						&& n.getModifiers() == aux.getModifiers()
+						&& n.isDefault() == aux.isDefault()) {
 					increaseUnmodifiedNodes(MethodDeclaration.class);
 				} else {
 					increaseUpdatedNodes(MethodDeclaration.class);
@@ -537,9 +570,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
 			inferASTChanges(n.getType(), aux.getType());
 			inferASTChanges(n.getVariables(), aux.getVariables());
-			if (!isUpdated && 
-					n.getModifiers() == aux.getModifiers()
-					) {
+			if (!isUpdated && n.getModifiers() == aux.getModifiers()) {
 				increaseUnmodifiedNodes(FieldDeclaration.class);
 			} else {
 				increaseUpdatedNodes(FieldDeclaration.class);
@@ -757,7 +788,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
 			inferASTChanges(n.getMembers(), aux.getMembers());
 			if (!isUpdated()) {
-				if (n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers()) {
+				if (n.getName().equals(aux.getName())
+						&& n.getModifiers() == aux.getModifiers()) {
 					increaseUnmodifiedNodes(AnnotationDeclaration.class);
 				} else {
 					increaseUpdatedNodes(AnnotationDeclaration.class);
@@ -798,7 +830,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			inferASTChanges(n.getDefaultValue(), aux.getDefaultValue());
 			inferASTChanges(n.getType(), aux.getType());
 			if (!isUpdated()) {
-				if (n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers()) {
+				if (n.getName().equals(aux.getName())
+						&& n.getModifiers() == aux.getModifiers()) {
 					increaseUnmodifiedNodes(AnnotationMemberDeclaration.class);
 				} else {
 					increaseUpdatedNodes(AnnotationMemberDeclaration.class);
@@ -935,8 +968,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(true);
 		}
 	}
-	
-	public void visit(MultiTypeParameter n, VisitorContext ctx){
+
+	public void visit(MultiTypeParameter n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
 		if (o != null) {
 			boolean backup = isUpdated();
@@ -1146,12 +1179,16 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 	public void visit(PrimitiveType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
 		if (o != null) {
+			boolean backup = isUpdated();
+			setIsUpdated(false);
 			PrimitiveType aux = (PrimitiveType) o;
+			inferASTChanges(n.getAnnotations(), aux.getAnnotations());		
 			if (n.getType().equals(aux.getType())) {
 				increaseUnmodifiedNodes(PrimitiveType.class);
 			} else {
 				increaseUpdatedNodes(PrimitiveType.class);
 			}
+			setIsUpdated(backup || isUpdated());
 		} else {
 			o = ctx.get(MAP_TO_UPDATE_KEY);
 			if (o != null) {
@@ -1169,13 +1206,18 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 	public void visit(ReferenceType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
 		if (o != null) {
+			boolean backup = isUpdated();
+			setIsUpdated(false);
 			ReferenceType aux = (ReferenceType) o;
+			inferASTChangesList(n.getArraysAnnotations(), aux.getArraysAnnotations());
+			inferASTChanges(n.getAnnotations(), aux.getAnnotations());		
 			if (n.getType().equals(aux.getType())
 					&& n.getArrayCount() == aux.getArrayCount()) {
 				increaseUnmodifiedNodes(PrimitiveType.class);
 			} else {
 				increaseUpdatedNodes(PrimitiveType.class);
 			}
+			setIsUpdated(backup || isUpdated());
 		} else {
 			o = ctx.get(MAP_TO_UPDATE_KEY);
 			if (o != null) {
@@ -1279,9 +1321,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			ArrayCreationExpr aux = (ArrayCreationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
+			inferASTChangesList(n.getArraysAnnotations(),
+					aux.getArraysAnnotations());
 			inferASTChanges(n.getDimensions(), aux.getDimensions());
 			inferASTChanges(n.getType(), aux.getType());
 			inferASTChanges(n.getInitializer(), aux.getInitializer());
+			
 			if (!isUpdated()) {
 				if (n.getArrayCount() == aux.getArrayCount()) {
 					increaseUnmodifiedNodes(ArrayCreationExpr.class);
@@ -2862,6 +2907,79 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					increaseDeletedNodes(CatchClause.class);
 					inferASTChanges(null, n.getCatchBlock());
 					inferASTChanges(null, n.getExcept());
+				}
+			}
+			setIsUpdated(true);
+		}
+	}
+
+	public void visit(LambdaExpr n, VisitorContext ctx) {
+		Object o = ctx.get(NODE_TO_COMPARE_KEY);
+		if (o != null) {
+			LambdaExpr aux = (LambdaExpr) o;
+			boolean backup = isUpdated();
+			setIsUpdated(false);
+			inferASTChanges(n.getParameters(), aux.getParameters());
+			inferASTChanges(n.getBody(), aux.getBody());
+
+			if (!isUpdated()) {
+				if (n.isParametersEnclosed() == aux.isParametersEnclosed()) {
+					increaseUnmodifiedNodes(LambdaExpr.class);
+				} else {
+					increaseUpdatedNodes(LambdaExpr.class);
+				}
+			} else {
+				increaseUpdatedNodes(LambdaExpr.class);
+			}
+			setIsUpdated(backup || isUpdated());
+		} else {
+			o = ctx.get(MAP_TO_UPDATE_KEY);
+			if (o != null) {
+				String action = (String) o;
+				if (action.equals(ADD_ACTION_KEY)) {
+					increaseAddedNodes(LambdaExpr.class);
+					inferASTChanges(n.getParameters(), null);
+					inferASTChanges(n.getBody(), null);
+				} else if (action.equals(DELETE_ACTION_KEY)) {
+					increaseDeletedNodes(LambdaExpr.class);
+					inferASTChanges(null, n.getParameters());
+					inferASTChanges(null, n.getBody());
+				}
+			}
+			setIsUpdated(true);
+		}
+	}
+
+	public void visit(MethodReferenceExpr n, VisitorContext ctx) {
+		Object o = ctx.get(NODE_TO_COMPARE_KEY);
+		if (o != null) {
+			MethodReferenceExpr aux = (MethodReferenceExpr) o;
+			boolean backup = isUpdated();
+			setIsUpdated(false);
+			inferASTChanges(n.getScope(), aux.getScope());
+			inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
+			if (!isUpdated()) {
+				if (n.getIdentifier().equals(aux.getIdentifier())) {
+					increaseUnmodifiedNodes(MethodReferenceExpr.class);
+				} else {
+					increaseUpdatedNodes(MethodReferenceExpr.class);
+				}
+			} else {
+				increaseUpdatedNodes(MethodReferenceExpr.class);
+			}
+			setIsUpdated(backup || isUpdated());
+		} else {
+			o = ctx.get(MAP_TO_UPDATE_KEY);
+			if (o != null) {
+				String action = (String) o;
+				if (action.equals(ADD_ACTION_KEY)) {
+					increaseAddedNodes(MethodReferenceExpr.class);
+					inferASTChanges(n.getScope(), null);
+					inferASTChanges(n.getTypeParameters(), null);
+				} else if (action.equals(DELETE_ACTION_KEY)) {
+					increaseDeletedNodes(MethodReferenceExpr.class);
+					inferASTChanges(null, n.getScope());
+					inferASTChanges(null, n.getTypeParameters());
 				}
 			}
 			setIsUpdated(true);
