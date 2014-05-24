@@ -108,5 +108,5 @@
 			<email>acoroleu@gmail.com</email>
 		</developer>
 	</developers>
-	<description>Walkmod plugin to support the Java programming language. It contains helper visitors, a walker and a basic code writer. </description>
+	<description>Walkmod plugin to support the Java 8 programming language. It contains helper visitors, a walker and a basic code writer.</description>
 </project>
