@@ -324,7 +324,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(CompilationUnit n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof CompilationUnit) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			if (o instanceof CompilationUnit) {
@@ -364,7 +364,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(PackageDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof PackageDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			PackageDeclaration aux = (PackageDeclaration) o;
@@ -396,7 +396,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ImportDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ImportDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			ImportDeclaration aux = (ImportDeclaration) o;
@@ -425,7 +425,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ClassOrInterfaceDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ClassOrInterfaceDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			ClassOrInterfaceDeclaration aux = (ClassOrInterfaceDeclaration) o;
@@ -474,7 +474,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(TypeParameter n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && n instanceof TypeParameter) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			TypeParameter aux = (TypeParameter) o;
@@ -508,7 +508,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MethodDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && n instanceof MethodDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			MethodDeclaration aux = (MethodDeclaration) o;
@@ -562,7 +562,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(FieldDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && n instanceof FieldDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			FieldDeclaration aux = (FieldDeclaration) o;
@@ -600,7 +600,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(LineComment n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof LineComment) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			LineComment aux = (LineComment) o;
@@ -626,7 +626,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(BlockComment n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof BlockComment) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			BlockComment aux = (BlockComment) o;
@@ -652,7 +652,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EnumDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EnumDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EnumDeclaration aux = (EnumDeclaration) o;
@@ -698,7 +698,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EmptyTypeDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EmptyTypeDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EmptyTypeDeclaration aux = (EmptyTypeDeclaration) o;
@@ -738,7 +738,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EnumConstantDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EnumConstantDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EnumConstantDeclaration aux = (EnumConstantDeclaration) o;
@@ -780,7 +780,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(AnnotationDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof AnnotationDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			AnnotationDeclaration aux = (AnnotationDeclaration) o;
@@ -821,7 +821,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(AnnotationMemberDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof AnnotationMemberDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			AnnotationMemberDeclaration aux = (AnnotationMemberDeclaration) o;
@@ -864,7 +864,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(VariableDeclarator n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof VariableDeclarator) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			VariableDeclarator aux = (VariableDeclarator) o;
@@ -896,7 +896,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(VariableDeclaratorId n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof VariableDeclaratorId) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			VariableDeclaratorId aux = (VariableDeclaratorId) o;
@@ -922,7 +922,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ConstructorDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ConstructorDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			ConstructorDeclaration aux = (ConstructorDeclaration) o;
@@ -971,7 +971,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MultiTypeParameter n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof MultiTypeParameter) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			MultiTypeParameter aux = (MultiTypeParameter) o;
@@ -1010,7 +1010,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(Parameter n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof Parameter) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			Parameter aux = (Parameter) o;
@@ -1049,7 +1049,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EmptyMemberDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EmptyMemberDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EmptyMemberDeclaration aux = (EmptyMemberDeclaration) o;
@@ -1081,7 +1081,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(InitializerDeclaration n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof InitializerDeclaration) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			InitializerDeclaration aux = (InitializerDeclaration) o;
@@ -1116,7 +1116,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(JavadocComment n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof JavadocComment) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			JavadocComment aux = (JavadocComment) o;
@@ -1142,7 +1142,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ClassOrInterfaceType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ClassOrInterfaceType) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			ClassOrInterfaceType aux = (ClassOrInterfaceType) o;
@@ -1178,7 +1178,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(PrimitiveType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof PrimitiveType) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			PrimitiveType aux = (PrimitiveType) o;
@@ -1205,7 +1205,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ReferenceType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ReferenceType) {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			ReferenceType aux = (ReferenceType) o;
@@ -1253,7 +1253,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(WildcardType n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof WildcardType) {
 			WildcardType aux = (WildcardType) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1285,7 +1285,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ArrayAccessExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ArrayAccessExpr) {
 			ArrayAccessExpr aux = (ArrayAccessExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1317,7 +1317,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ArrayCreationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ArrayCreationExpr) {
 			ArrayCreationExpr aux = (ArrayCreationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1359,7 +1359,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ArrayInitializerExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ArrayInitializerExpr) {
 			ArrayInitializerExpr aux = (ArrayInitializerExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1388,7 +1388,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(AssignExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof AssignExpr) {
 			AssignExpr aux = (AssignExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1424,7 +1424,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(BinaryExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof BinaryExpr) {
 			BinaryExpr aux = (BinaryExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1460,7 +1460,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(CastExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof CastExpr) {
 			CastExpr aux = (CastExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1492,7 +1492,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ClassExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ClassExpr) {
 			ClassExpr aux = (ClassExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1521,7 +1521,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ConditionalExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ConditionalExpr) {
 			ConditionalExpr aux = (ConditionalExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1556,7 +1556,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EnclosedExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EnclosedExpr) {
 			EnclosedExpr aux = (EnclosedExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1585,7 +1585,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(FieldAccessExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof FieldAccessExpr) {
 			FieldAccessExpr aux = (FieldAccessExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1621,7 +1621,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(InstanceOfExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof InstanceOfExpr) {
 			InstanceOfExpr aux = (InstanceOfExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1653,7 +1653,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(StringLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof StringLiteralExpr) {
 			StringLiteralExpr aux = (StringLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1679,7 +1679,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(IntegerLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof IntegerLiteralExpr) {
 			IntegerLiteralExpr aux = (IntegerLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1705,7 +1705,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(LongLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof LongLiteralExpr) {
 			LongLiteralExpr aux = (LongLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1731,7 +1731,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(IntegerLiteralMinValueExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof IntegerLiteralMinValueExpr) {
 			IntegerLiteralMinValueExpr aux = (IntegerLiteralMinValueExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1757,7 +1757,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(LongLiteralMinValueExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof LongLiteralMinValueExpr) {
 			LongLiteralMinValueExpr aux = (LongLiteralMinValueExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1783,7 +1783,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(CharLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof CharLiteralExpr) {
 			CharLiteralExpr aux = (CharLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1809,7 +1809,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(DoubleLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof DoubleLiteralExpr) {
 			DoubleLiteralExpr aux = (DoubleLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1835,7 +1835,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(BooleanLiteralExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof BooleanLiteralExpr) {
 			BooleanLiteralExpr aux = (BooleanLiteralExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1879,7 +1879,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MethodCallExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof MethodCallExpr) {
 			MethodCallExpr aux = (MethodCallExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1918,7 +1918,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(NameExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof NameExpr) {
 			NameExpr aux = (NameExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1944,7 +1944,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ObjectCreationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ObjectCreationExpr) {
 			ObjectCreationExpr aux = (ObjectCreationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -1982,7 +1982,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(QualifiedNameExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof QualifiedNameExpr) {
 			QualifiedNameExpr aux = (QualifiedNameExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2015,7 +2015,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ThisExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ThisExpr) {
 			ThisExpr aux = (ThisExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2044,7 +2044,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(SuperExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof SuperExpr) {
 			SuperExpr aux = (SuperExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2073,7 +2073,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(UnaryExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof UnaryExpr) {
 			UnaryExpr aux = (UnaryExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2106,7 +2106,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(VariableDeclarationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof VariableDeclarationExpr) {
 			VariableDeclarationExpr aux = (VariableDeclarationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2145,7 +2145,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MarkerAnnotationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof MarkerAnnotationExpr) {
 			MarkerAnnotationExpr aux = (MarkerAnnotationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2174,7 +2174,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(SingleMemberAnnotationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof SingleMemberAnnotationExpr) {
 			SingleMemberAnnotationExpr aux = (SingleMemberAnnotationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2206,7 +2206,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(NormalAnnotationExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof NormalAnnotationExpr) {
 			NormalAnnotationExpr aux = (NormalAnnotationExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2238,7 +2238,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MemberValuePair n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof MemberValuePair) {
 			MemberValuePair aux = (MemberValuePair) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2271,7 +2271,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ExplicitConstructorInvocationStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ExplicitConstructorInvocationStmt) {
 			ExplicitConstructorInvocationStmt aux = (ExplicitConstructorInvocationStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2306,7 +2306,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(TypeDeclarationStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof TypeDeclarationStmt) {
 			TypeDeclarationStmt aux = (TypeDeclarationStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2335,7 +2335,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(AssertStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof AssertStmt) {
 			AssertStmt aux = (AssertStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2367,7 +2367,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(BlockStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof BlockStmt) {
 			BlockStmt aux = (BlockStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2396,7 +2396,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(LabeledStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof LabeledStmt) {
 			LabeledStmt aux = (LabeledStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2429,7 +2429,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(EmptyStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof EmptyStmt) {
 			increaseUnmodifiedNodes(EmptyStmt.class);
 		} else {
 			o = ctx.get(MAP_TO_UPDATE_KEY);
@@ -2447,7 +2447,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ExpressionStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ExpressionStmt) {
 			ExpressionStmt aux = (ExpressionStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2476,7 +2476,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(SwitchStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof SwitchStmt) {
 			SwitchStmt aux = (SwitchStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2508,7 +2508,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(SwitchEntryStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof SwitchEntryStmt) {
 			SwitchEntryStmt aux = (SwitchEntryStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2540,7 +2540,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(BreakStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof BreakStmt) {
 			BreakStmt aux = (BreakStmt) o;
 			if (n.getId() == null || n.getId().equals(aux.getId())) {
 				increaseUnmodifiedNodes(BreakStmt.class);
@@ -2563,7 +2563,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ReturnStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ReturnStmt) {
 			ReturnStmt aux = (ReturnStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2593,7 +2593,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(IfStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && n instanceof IfStmt) {
 			IfStmt aux = (IfStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2624,7 +2624,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(WhileStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof WhileStmt) {
 			WhileStmt aux = (WhileStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2656,7 +2656,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ContinueStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ContinueStmt) {
 			ContinueStmt aux = (ContinueStmt) o;
 			if (n.getId() == null || n.getId().equals(aux.getId())) {
 				increaseUnmodifiedNodes(ContinueStmt.class);
@@ -2679,7 +2679,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(DoStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof DoStmt) {
 			DoStmt aux = (DoStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2711,7 +2711,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ForeachStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ForeachStmt) {
 			ForeachStmt aux = (ForeachStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2746,7 +2746,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ForStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ForStmt) {
 			ForStmt aux = (ForStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2784,7 +2784,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(ThrowStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof ThrowStmt) {
 			ThrowStmt aux = (ThrowStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2813,7 +2813,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(SynchronizedStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof SynchronizedStmt) {
 			SynchronizedStmt aux = (SynchronizedStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2845,7 +2845,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(TryStmt n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof TryStmt) {
 			TryStmt aux = (TryStmt) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2883,7 +2883,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(CatchClause n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof CatchClause) {
 			CatchClause aux = (CatchClause) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2915,7 +2915,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(LambdaExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof LambdaExpr) {
 			LambdaExpr aux = (LambdaExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
@@ -2952,7 +2952,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void visit(MethodReferenceExpr n, VisitorContext ctx) {
 		Object o = ctx.get(NODE_TO_COMPARE_KEY);
-		if (o != null) {
+		if (o != null && o instanceof MethodReferenceExpr) {
 			MethodReferenceExpr aux = (MethodReferenceExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
