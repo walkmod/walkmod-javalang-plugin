@@ -184,6 +184,15 @@ public class DefaultJavaWalker extends AbstractWalker {
 									auxAdded, auxUpdated, auxDeleted,
 									auxUnmodified);
 							printer.print();
+							File outputDir = 
+									new File(getChainConfig()
+											.getWriterConfig().getPath());
+									
+							File inputDir = new File(getChainConfig()
+											.getReaderConfig().getPath());
+							if(!outputDir.equals(inputDir)){
+								vc.remove(ORIGINAL_FILE_KEY);
+							}							
 							write(element, vc);
 							log.debug(originalFile.getPath() + " [ written ]");
 						} else {
@@ -241,6 +250,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 				}
 			} else {
 				log.warn("report changes options is not active");
+				vc.remove(ORIGINAL_FILE_KEY);
 				write(element, vc);
 				log.debug(originalFile.getPath() + " [ written ]");
 			}
@@ -355,6 +365,12 @@ public class DefaultJavaWalker extends AbstractWalker {
 	@Override
 	public Parser<?> getParser() {
 		return parser;
+	}	
+
+	public void setOnlyWriteChanges(boolean onlyWriteChanges) {
+		this.onlyWriteChanges = onlyWriteChanges;
 	}
+	
+	
 	
 }
