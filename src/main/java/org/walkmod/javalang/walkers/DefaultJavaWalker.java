@@ -249,10 +249,9 @@ public class DefaultJavaWalker extends AbstractWalker {
 					}
 				}
 			} else {
-				log.warn("report changes options is not active");
+				log.info(">> " + originalFile.getPath() );
 				vc.remove(ORIGINAL_FILE_KEY);
 				write(element, vc);
-				log.debug(originalFile.getPath() + " [ written ]");
 			}
 		}
 	}
