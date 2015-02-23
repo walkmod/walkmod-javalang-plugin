@@ -103,6 +103,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 		if (element != null && element instanceof CompilationUnit) {
 			VisitorContext vc = new VisitorContext(getChainConfig());
 			vc.put(ORIGINAL_FILE_KEY, originalFile);
+			vc.put("onlyWriteChanges", onlyWriteChanges);
+			vc.put("reportChanges", reportChanges);
 			if (reportChanges) {
 				CompilationUnit returningCU = (CompilationUnit) element;
 				CompilationUnit cu = null;
@@ -138,7 +140,10 @@ public class DefaultJavaWalker extends AbstractWalker {
 						VisitorContext ctx = new VisitorContext();
 						ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
 						clv.visit((CompilationUnit) element, ctx);
-						if (clv.isUpdated()) {
+						boolean isUpdated = clv.isUpdated();
+						vc.put("isUpdated", isUpdated);
+						if (isUpdated) {
+							
 							log.debug(originalFile.getPath()
 									+ " [with changes]");
 							String name = "";
