@@ -124,7 +124,7 @@ public class ActionsApplier {
 								modifiedText.append('\r');
 								actionColumn++;
 							} else if (contents[index] != '\n') {
-								modifiedText.append(' ');
+								//modifiedText.append(' ');
 								actionColumn++;
 							} else {
 								actionLine++;

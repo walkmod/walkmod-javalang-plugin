@@ -67,7 +67,7 @@ public class TestActionsInferred {
 		applier.setText(code2);
 		applier.execute();
 		
-		Assert.assertEquals("public class A { private String name;                 }", applier.getModifiedText());
+		Assert.assertEquals("public class A { private String name; }", applier.getModifiedText());
 		
 		code2 = "public class A { private String name; private void print(){ System.out.println(\"hello\");}}";
 		cu2 = parser.parse(code2, false);
@@ -87,7 +87,7 @@ public class TestActionsInferred {
 		applier.setText(code2);
 		applier.execute();
 		
-		String expectedReult = "public class A { private String name;                                                    }";
+		String expectedReult = "public class A { private String name; }";
 		Assert.assertEquals(expectedReult, applier.getModifiedText());
 		
 		
@@ -109,7 +109,7 @@ public class TestActionsInferred {
 		applier.setText(code2);
 		applier.execute();
 		
-		expectedReult = "public class A { private String name;                           }";
+		expectedReult = "public class A { private String name; }";
 		Assert.assertEquals(expectedReult, applier.getModifiedText());
 	
 		//inner comments
@@ -129,14 +129,14 @@ public class TestActionsInferred {
 		applier.setActionList(actions);
 		applier.setText(code2);
 		applier.execute();
-		expectedReult = "public class A { private String name;                                                                 }";
+		expectedReult = "public class A { private String name;  }";
 		Assert.assertEquals(expectedReult, applier.getModifiedText());
 		
 		
 		code = "public class A{ static{ \n  int i = 1 /*first comment*/;\n  i++; }}";
 		cu =  parser.parse(code, false);
 		
-		code2 = "public class A{ static{ \n                              \n  i++; }}";
+		code2 ="public class A{ static{ \n                              \n  i++; }}";
 		cu2 = parser.parse(code2, false);
 		visitor = new ChangeLogVisitor();
 		ctx = new VisitorContext();
@@ -154,7 +154,7 @@ public class TestActionsInferred {
 		applier.setText(code2);
 		applier.execute();
 		
-		Assert.assertEquals(code2, applier.getModifiedText());
+		Assert.assertEquals("public class A{ static{ \n  \n  i++; }}", applier.getModifiedText());
 		//remove children elements with char separator
 		
 		code =  "public enum A { FOO,      }";
@@ -195,7 +195,7 @@ public class TestActionsInferred {
 		applier.setActionList(actions);
 		applier.setText(code2);
 		applier.execute();                                                             
-		Assert.assertEquals(code, applier.getModifiedText());
+		Assert.assertEquals( "public class A {  }", applier.getModifiedText());
 	}
 	
 	@Test
@@ -227,7 +227,7 @@ public class TestActionsInferred {
 		applier.setActionList(actions);
 		applier.setText(code);
 		applier.execute();
-		String result = "package org;\nimport foo.Bar;\n                      \n                            \nimport foo.Car;\n";
+		String result = "package org;\nimport foo.Bar;\n\n\nimport foo.Car;\n";
 		Assert.assertEquals(result+classCode, applier.getModifiedText());
 		
 	}
