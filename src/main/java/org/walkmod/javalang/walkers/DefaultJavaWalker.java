@@ -43,6 +43,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 	private boolean reportChanges = true;
 
 	private boolean onlyWriteChanges = true;
+	
+	private boolean onlyIncrementalWrites = true;
 
 	private Map<String, Integer> added = new HashMap<String, Integer>();
 
@@ -53,12 +55,18 @@ public class DefaultJavaWalker extends AbstractWalker {
 	private Map<String, Integer> unmodified = new HashMap<String, Integer>();
 
 	private String encoding = "UTF-8";
+	
+	public static final String ACTIONS_TO_APPY_KEY = "actions_to_apply_key";
 
 	private Parser<CompilationUnit> parser;
 
 	public void accept(File file) throws Exception {
 		originalFile = file;
 		visit(file);
+	}
+	
+	public void setOnlyIncrementalWrites(boolean onlyIncrementalWrites){
+		this.onlyIncrementalWrites = onlyIncrementalWrites;
 	}
 
 	public void visit(File file) throws Exception {
@@ -137,10 +145,14 @@ public class DefaultJavaWalker extends AbstractWalker {
 					boolean resolveWrite = false;
 					if (samePackage && sameType) {
 						ChangeLogVisitor clv = new ChangeLogVisitor();
+						clv.setGenerateActions(onlyIncrementalWrites);
 						VisitorContext ctx = new VisitorContext();
 						ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
 						clv.visit((CompilationUnit) element, ctx);
 						boolean isUpdated = clv.isUpdated();
+						if(onlyIncrementalWrites && isUpdated){
+							vc.put(ACTIONS_TO_APPY_KEY, clv.getActionsToApply());
+						}
 						vc.put("isUpdated", isUpdated);
 						if (isUpdated) {
 							
