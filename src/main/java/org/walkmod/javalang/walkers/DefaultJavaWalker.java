@@ -18,14 +18,19 @@ package org.walkmod.javalang.walkers;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.body.ModifierSet;
 import org.walkmod.javalang.ast.body.TypeDeclaration;
 import org.walkmod.javalang.ast.expr.NameExpr;
+import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
+import org.walkmod.javalang.compiler.symbols.SymbolVisitorAdapter;
 import org.walkmod.javalang.util.FileUtils;
 import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.ChangeLogPrinter;
@@ -43,7 +48,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 	private boolean reportChanges = true;
 
 	private boolean onlyWriteChanges = true;
-	
+
 	private boolean onlyIncrementalWrites = true;
 
 	private Map<String, Integer> added = new HashMap<String, Integer>();
@@ -55,17 +60,21 @@ public class DefaultJavaWalker extends AbstractWalker {
 	private Map<String, Integer> unmodified = new HashMap<String, Integer>();
 
 	private String encoding = "UTF-8";
-	
+
 	public static final String ACTIONS_TO_APPY_KEY = "actions_to_apply_key";
 
 	private Parser<CompilationUnit> parser;
+
+	private Boolean requiresSemanticAnalysis = null;
+
+	private ClassLoader classLoader;
 
 	public void accept(File file) throws Exception {
 		originalFile = file;
 		visit(file);
 	}
-	
-	public void setOnlyIncrementalWrites(boolean onlyIncrementalWrites){
+
+	public void setOnlyIncrementalWrites(boolean onlyIncrementalWrites) {
 		this.onlyIncrementalWrites = onlyIncrementalWrites;
 	}
 
@@ -86,6 +95,34 @@ public class DefaultJavaWalker extends AbstractWalker {
 				}
 			}
 			if (cu != null) {
+				if (requiresSemanticAnalysis == null) {
+					List<Object> visitors = getVisitors();
+					Iterator<Object> it = visitors.iterator();
+					while (it.hasNext() && requiresSemanticAnalysis == null) {
+						Object current = it.next();
+						if (current.getClass().isAnnotationPresent(
+								RequiresSemanticAnalysis.class)) {
+							requiresSemanticAnalysis = true;
+						}
+					}
+					if (requiresSemanticAnalysis == null) {
+						requiresSemanticAnalysis = false;
+					}
+				}
+				ClassLoader cl = getClassLoader();
+
+				if (requiresSemanticAnalysis) {
+					if (cl != null) {
+						SymbolVisitorAdapter<HashMap<String, Object>> visitor = new SymbolVisitorAdapter<HashMap<String, Object>>();
+						visitor.setClassLoader(cl);
+						visitor.visit(cu, new HashMap<String, Object>());
+					} else {
+						throw new WalkModException(
+								"There is no available project classpath to apply "
+										+ "a semantic analysis");
+					}
+				}
+
 				log.debug(file.getPath() + " [ visiting ]");
 				visit(cu);
 				log.debug(file.getPath() + " [ visited ]");
@@ -93,6 +130,14 @@ public class DefaultJavaWalker extends AbstractWalker {
 				log.warn("Empty compilation unit");
 			}
 		}
+	}
+
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	private void mapSum(Map<String, Integer> op1, Map<String, Integer> op2) {
@@ -150,12 +195,12 @@ public class DefaultJavaWalker extends AbstractWalker {
 						ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
 						clv.visit((CompilationUnit) element, ctx);
 						boolean isUpdated = clv.isUpdated();
-						if(onlyIncrementalWrites && isUpdated){
+						if (onlyIncrementalWrites && isUpdated) {
 							vc.put(ACTIONS_TO_APPY_KEY, clv.getActionsToApply());
 						}
 						vc.put("isUpdated", isUpdated);
 						if (isUpdated) {
-							
+
 							log.debug(originalFile.getPath()
 									+ " [with changes]");
 							String name = "";
@@ -201,15 +246,14 @@ public class DefaultJavaWalker extends AbstractWalker {
 									auxAdded, auxUpdated, auxDeleted,
 									auxUnmodified);
 							printer.print();
-							File outputDir = 
-									new File(getChainConfig()
-											.getWriterConfig().getPath());
-									
+							File outputDir = new File(getChainConfig()
+									.getWriterConfig().getPath());
+
 							File inputDir = new File(getChainConfig()
-											.getReaderConfig().getPath());
-							if(!outputDir.equals(inputDir)){
+									.getReaderConfig().getPath());
+							if (!outputDir.equals(inputDir)) {
 								vc.remove(ORIGINAL_FILE_KEY);
-							}							
+							}
 							write(element, vc);
 							log.debug(originalFile.getPath() + " [ written ]");
 						} else {
@@ -266,7 +310,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 					}
 				}
 			} else {
-				log.info(">> " + originalFile.getPath() );
+				log.info(">> " + originalFile.getPath());
 				vc.remove(ORIGINAL_FILE_KEY);
 				write(element, vc);
 			}
@@ -381,12 +425,18 @@ public class DefaultJavaWalker extends AbstractWalker {
 	@Override
 	public Parser<?> getParser() {
 		return parser;
-	}	
+	}
 
 	public void setOnlyWriteChanges(boolean onlyWriteChanges) {
 		this.onlyWriteChanges = onlyWriteChanges;
 	}
-	
-	
-	
+
+	public boolean getRequiresSemanticAnalysis() {
+		return requiresSemanticAnalysis;
+	}
+
+	public void setRequiresSemanticAnalysis(boolean requiresSemanticAnalysis) {
+		this.requiresSemanticAnalysis = requiresSemanticAnalysis;
+	}
+
 }
