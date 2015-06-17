@@ -305,7 +305,23 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					isContained = last.contains(action);
 				}
 				if (!isContained) {
-					actionsToApply.add(action);
+					inverseIt = actionsToApply.descendingIterator();
+					boolean added = false;
+					int pos = actionsToApply.size();
+					while (inverseIt.hasNext() && !added) {
+						Action current = inverseIt.next();
+						if (action.isPreviousThan(current.getEndLine(),
+								current.getEndColumn())) {
+							pos--;
+						} else {
+							added = true;
+							actionsToApply.add(pos, action);
+						}
+					}
+					if(!added){
+						actionsToApply.add(0, action);
+					}
+
 				}
 
 			} else {
@@ -317,7 +333,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 		}
 		increaseDeletedNodes(oi.getClass());
-		
+
 	}
 
 	private void applyAppend(Node id) {
@@ -531,7 +547,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				List<TypeDeclaration> types = oldCU.getTypes();
 
 				inferASTChanges(n.getPackage(), oldCU.getPackage());
-				if (!types.isEmpty()) {
+				if (types != null && !types.isEmpty()) {
 					TypeDeclaration td = types.get(0);
 
 					int line = td.getBeginLine();
@@ -777,51 +793,48 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		}
 	}
 
-	private <T extends Node, K extends Node> boolean applyUpdate(T thisNode, T other,
-			List<K> theseNodes, List<K> otherNodes) {
+	private <T extends Node, K extends Node> boolean applyUpdate(T thisNode,
+			T other, List<K> theseNodes, List<K> otherNodes) {
 		if (otherNodes == null && theseNodes == null) {
 			return false;
 		} else if (otherNodes == null || theseNodes == null) {
 			applyUpdate(thisNode, (Node) other);
 		} else if (theseNodes.size() != otherNodes.size()) {
 			applyUpdate(thisNode, (Node) other);
-		}
-		else{
+		} else {
 			boolean equals = true;
 			Iterator<K> it1 = theseNodes.iterator();
 			Iterator<K> it2 = otherNodes.iterator();
-			
-			while(it1.hasNext() && equals){
+
+			while (it1.hasNext() && equals) {
 				K n1 = it1.next();
 				K n2 = it2.next();
 				equals = n1.isInEqualLocation(n2);
 			}
-			
-			if(!equals){
+
+			if (!equals) {
 				applyUpdate(thisNode, (Node) other);
-			}
-			else{
+			} else {
 				return false;
 			}
 		}
 		return true;
 	}
-	
-	private <T extends Node, K extends Node> boolean applyUpdateList(T thisNode, T other,
-			List<List<K>> theseNodes, List<List<K>> otherNodes) {
+
+	private <T extends Node, K extends Node> boolean applyUpdateList(
+			T thisNode, T other, List<List<K>> theseNodes,
+			List<List<K>> otherNodes) {
 		if (otherNodes == null && theseNodes == null) {
 			return false;
-		}
-		else if (otherNodes == null || theseNodes == null) {
+		} else if (otherNodes == null || theseNodes == null) {
 			applyUpdate(thisNode, (Node) other);
 		} else if (theseNodes.size() != otherNodes.size()) {
 			applyUpdate(thisNode, (Node) other);
-		}
-		else{
+		} else {
 			boolean equals = true;
 			Iterator<List<K>> it1 = theseNodes.iterator();
 			Iterator<List<K>> it2 = otherNodes.iterator();
-			while(it1.hasNext() && equals){
+			while (it1.hasNext() && equals) {
 				List<K> n1 = it1.next();
 				List<K> n2 = it2.next();
 				equals = !applyUpdate(thisNode, other, n1, n2);
@@ -830,7 +843,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		}
 		return true;
 	}
-	
 
 	private <T extends Node> void applyUpdate(T thisNode, T other,
 			Node theseProperty, Node otherProperty) {
