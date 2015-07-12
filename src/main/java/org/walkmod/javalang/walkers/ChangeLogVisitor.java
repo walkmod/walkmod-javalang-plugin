@@ -1810,6 +1810,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			inferASTChanges(n.getArgs(), aux.getArgs());
 			position.pop();
 			position.push(pos);
+			increaseIndentation();
+			inferIndentationSize(n, n.getAnonymousClassBody());
+			inferASTChanges(n.getAnonymousClassBody(), aux.getAnonymousClassBody());
+			decreaseIndentation();
 			if (!isUpdated()) {
 				increaseUnmodifiedNodes(ObjectCreationExpr.class);
 			} else {
@@ -1921,7 +1925,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
 			inferASTChanges(n.getAnnotations(), aux.getAnnotations());
-			inferASTChanges(n.getVars(), n.getVars());
+			inferASTChanges(n.getVars(), aux.getVars());
 			inferASTChanges(n.getType(), aux.getType());
 			position.pop();
 			position.push(pos);
