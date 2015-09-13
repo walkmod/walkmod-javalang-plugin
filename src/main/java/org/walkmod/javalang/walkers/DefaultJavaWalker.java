@@ -277,10 +277,13 @@ public class DefaultJavaWalker extends AbstractWalker {
 								File outputDir = FileUtils.getSourceFile(
 										new File(getChainConfig()
 												.getWriterConfig().getPath()),
-										returningCU.getPackage(), returningCU
-												.getTypes().get(0));
-								log.debug(outputDir.getPath()
+										returningCU.getPackage(),
+										returningCU.getTypes().get(0))
+										.getAbsoluteFile();
+								
+								log.debug(outputDir.getAbsolutePath()
 										+ " [ output file ]");
+
 								if (!outputDir.exists()) {
 									log.info("++ " + name);
 									vc.remove(ORIGINAL_FILE_KEY);
