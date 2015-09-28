@@ -37,13 +37,13 @@ import org.walkmod.walkers.ParseException;
 import org.walkmod.walkers.VisitorContext;
 
 public class TestActionsInferred {
-	
+
 	DefaultJavaParser parser = new DefaultJavaParser();
 
 	@Test
 	public void testNoActions() throws Exception {
 		String code = "public class A { private int name;}";
-		
+
 		CompilationUnit cu = parser.parse(code, false);
 
 		CompilationUnit cu2 = parser.parse(code, false);
@@ -56,8 +56,25 @@ public class TestActionsInferred {
 		Assert.assertTrue(actions.isEmpty());
 	}
 
-	private List<Action> getActions(CompilationUnit original,
-			CompilationUnit modified) {
+	@Test
+	public void testNoActionsWithEmptyDeclaration() throws Exception {
+		String code = "package at.foo.bar.annotations; " + "import java.lang.annotation.ElementType; "
+				+ "import java.lang.annotation.Retention; " + "import java.lang.annotation.RetentionPolicy; "
+				+ "import java.lang.annotation.Target;" + " public @interface Exportable { enum Type { A, B;};}";
+
+		CompilationUnit cu = parser.parse(code, false);
+
+		CompilationUnit cu2 = parser.parse(code, false);
+
+		ChangeLogVisitor visitor = new ChangeLogVisitor();
+		VisitorContext ctx = new VisitorContext();
+		ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
+		visitor.visit((CompilationUnit) cu2, ctx);
+		List<Action> actions = visitor.getActionsToApply();
+		Assert.assertTrue(actions.isEmpty());
+	}
+
+	private List<Action> getActions(CompilationUnit original, CompilationUnit modified) {
 		ChangeLogVisitor visitor = new ChangeLogVisitor();
 		VisitorContext ctx = new VisitorContext();
 		ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, original);
@@ -69,7 +86,7 @@ public class TestActionsInferred {
 	@Test
 	public void testRemoveField() throws Exception {
 		String modifiedCode = "public class A { private String name;}";
-		
+
 		CompilationUnit modifiedCu = parser.parse(modifiedCode, false);
 
 		String original = "public class A { private String name; private int age;}";
@@ -116,8 +133,7 @@ public class TestActionsInferred {
 		List<Action> actions = getActions(originalCu, modifiedCu);
 
 		Assert.assertEquals(1, actions.size());
-		Assert.assertEquals(original.indexOf("/**age**/") + 1, actions.get(0)
-				.getBeginColumn());
+		Assert.assertEquals(original.indexOf("/**age**/") + 1, actions.get(0).getBeginColumn());
 		Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 	}
 
@@ -132,12 +148,10 @@ public class TestActionsInferred {
 		List<Action> actions = getActions(originalCu, modifiedCu);
 
 		Assert.assertEquals(1, actions.size());
-		Assert.assertEquals(original.indexOf("private void print()") + 1,
-				actions.get(0).getBeginColumn());
+		Assert.assertEquals(original.indexOf("private void print()") + 1, actions.get(0).getBeginColumn());
 		Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 
-		assertCode(actions, original,
-				"public class A { private String name;  }");
+		assertCode(actions, original, "public class A { private String name;  }");
 	}
 
 	@Test
@@ -152,8 +166,7 @@ public class TestActionsInferred {
 
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(3, actions.get(0).getBeginColumn());
-		Assert.assertEquals("int i = 1 /*first comment*/".length() + 3, actions
-				.get(0).getEndColumn());
+		Assert.assertEquals("int i = 1 /*first comment*/".length() + 3, actions.get(0).getEndColumn());
 		Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 
 		assertCode(actions, original, "public class A{ static{ \n  \n  i++; }}");
@@ -180,7 +193,7 @@ public class TestActionsInferred {
 	@Test
 	public void testRemoveMultipleClassMembers() throws Exception {
 		String modifiedCode = "public class A {                                      }";
-		
+
 		CompilationUnit modifiedCu = parser.parse(modifiedCode, false);
 
 		String original = "public class A { private String name; private int age;}";
@@ -215,12 +228,9 @@ public class TestActionsInferred {
 		Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 		Assert.assertEquals(ActionType.REMOVE, actions.get(1).getType());
 
-		Assert.assertEquals("import java.util.Collection;",
-				((RemoveAction) actions.get(1)).getText());
+		Assert.assertEquals("import java.util.Collection;", ((RemoveAction) actions.get(1)).getText());
 
-		assertCode(actions, code,
-				"package org;\nimport foo.Bar;\n\n\nimport foo.Car;\n"
-						+ classCode);
+		assertCode(actions, code, "package org;\nimport foo.Bar;\n\n\nimport foo.Car;\n" + classCode);
 
 	}
 
@@ -233,8 +243,7 @@ public class TestActionsInferred {
 
 		List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>();
 
-		imports.add(new ImportDeclaration(new NameExpr("org.walkmod.B"), false,
-				false));
+		imports.add(new ImportDeclaration(new NameExpr("org.walkmod.B"), false, false));
 		modifiedCu.setImports(imports);
 
 		List<Action> actions = getActions(originalCu, modifiedCu);
@@ -244,8 +253,7 @@ public class TestActionsInferred {
 		Assert.assertEquals(2, actions.get(0).getBeginLine());
 		Assert.assertEquals(1, actions.get(0).getBeginColumn());
 
-		assertCode(actions, code,
-				"package org;\nimport org.walkmod.B;\npublic class A {}");
+		assertCode(actions, code, "package org;\nimport org.walkmod.B;\npublic class A {}");
 
 		code = "package org;\n@Override\npublic class A {}";
 		parser = new DefaultJavaParser();
@@ -254,11 +262,9 @@ public class TestActionsInferred {
 
 		imports = new LinkedList<ImportDeclaration>();
 
-		imports.add(new ImportDeclaration(new NameExpr("org.walkmod.B"), false,
-				false));
+		imports.add(new ImportDeclaration(new NameExpr("org.walkmod.B"), false, false));
 		modifiedCu.setImports(imports);
-		modifiedCu.getTypes().get(0).getAnnotations()
-				.add(new NormalAnnotationExpr(new NameExpr("Foo"), null));
+		modifiedCu.getTypes().get(0).getAnnotations().add(new NormalAnnotationExpr(new NameExpr("Foo"), null));
 
 		actions = getActions(originalCu, modifiedCu);
 		Assert.assertEquals(2, actions.size());
@@ -267,8 +273,7 @@ public class TestActionsInferred {
 		Assert.assertEquals(2, actions.get(0).getBeginLine());
 		Assert.assertEquals(1, actions.get(0).getBeginColumn());
 
-		assertCode(actions, code,
-				"package org;\nimport org.walkmod.B;\n@Foo()\n@Override\npublic class A {}");
+		assertCode(actions, code, "package org;\nimport org.walkmod.B;\n@Foo()\n@Override\npublic class A {}");
 
 	}
 
@@ -278,10 +283,8 @@ public class TestActionsInferred {
 		CompilationUnit modifiedCu = parser.parse(code, false);
 		CompilationUnit originalCu = parser.parse(code, false);
 
-		FieldDeclaration fd = (FieldDeclaration) modifiedCu.getTypes().get(0)
-				.getMembers().get(0);
-		ClassOrInterfaceType type = (ClassOrInterfaceType) ((ReferenceType) fd
-				.getType()).getType();
+		FieldDeclaration fd = (FieldDeclaration) modifiedCu.getTypes().get(0).getMembers().get(0);
+		ClassOrInterfaceType type = (ClassOrInterfaceType) ((ReferenceType) fd.getType()).getType();
 		type.setName("B");
 
 		List<Action> actions = getActions(originalCu, modifiedCu);
@@ -299,8 +302,7 @@ public class TestActionsInferred {
 		CompilationUnit modifiedCu = parser.parse(code, false);
 		CompilationUnit originalCu = parser.parse(code, false);
 
-		MethodDeclaration md = (MethodDeclaration) modifiedCu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) modifiedCu.getTypes().get(0).getMembers().get(0);
 		ExpressionStmt stmt = (ExpressionStmt) md.getBody().getStmts().get(0);
 		MethodCallExpr expr = (MethodCallExpr) stmt.getExpression();
 		expr.setName("different");
@@ -309,8 +311,7 @@ public class TestActionsInferred {
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
-		assertCode(actions, code,
-				"public class A { public void foo(){ this.different(this); }}");
+		assertCode(actions, code, "public class A { public void foo(){ this.different(this); }}");
 
 	}
 
@@ -320,8 +321,7 @@ public class TestActionsInferred {
 
 		String code2 = "public class A {\n private String name;\n}";
 
-		FieldDeclaration fd = (FieldDeclaration) ASTManager.parse(
-				FieldDeclaration.class, "private int age;", true);
+		FieldDeclaration fd = (FieldDeclaration) ASTManager.parse(FieldDeclaration.class, "private int age;", true);
 
 		CompilationUnit originalCu = parser.parse(code2, false);
 		modifiedCu.getTypes().get(0).getMembers().add(fd);
@@ -331,8 +331,7 @@ public class TestActionsInferred {
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(1, actions.get(0).getBeginColumn());
 		Assert.assertEquals(ActionType.APPEND, actions.get(0).getType());
-		assertCode(actions, code2,
-				"public class A {\n private String name;\n private int age;\n}");
+		assertCode(actions, code2, "public class A {\n private String name;\n private int age;\n}");
 	}
 
 	@Test
@@ -341,14 +340,12 @@ public class TestActionsInferred {
 		String code2 = "public class A {\n private String name;\n}";
 
 		CompilationUnit modifiedCu = parser.parse(code, false);
-		FieldDeclaration fd = (FieldDeclaration) ASTManager.parse(
-				FieldDeclaration.class, "private int age;", true);
+		FieldDeclaration fd = (FieldDeclaration) ASTManager.parse(FieldDeclaration.class, "private int age;", true);
 
 		CompilationUnit originalCu = parser.parse(code2, false);
 		modifiedCu.getTypes().get(0).getMembers().add(fd);
 		// multiple appends
-		fd = (FieldDeclaration) ASTManager.parse(FieldDeclaration.class,
-				"private String surname;", true);
+		fd = (FieldDeclaration) ASTManager.parse(FieldDeclaration.class, "private String surname;", true);
 		modifiedCu.getTypes().get(0).getMembers().add(fd);
 
 		List<Action> actions = getActions(originalCu, modifiedCu);
@@ -356,20 +353,17 @@ public class TestActionsInferred {
 		Assert.assertEquals(2, actions.size());
 		Assert.assertEquals(1, actions.get(1).getBeginColumn());
 		Assert.assertEquals(ActionType.APPEND, actions.get(1).getType());
-		assertCode(
-				actions,
-				code2,
+		assertCode(actions, code2,
 				"public class A {\n private String name;\n private int age;\n private String surname;\n}");
 
 	}
-	
+
 	@Test
-	public void testAppendJavadoc() throws Exception{
-		
+	public void testAppendJavadoc() throws Exception {
+
 		String code = "public class A {\n private String name;\n}";
 		CompilationUnit modifiedCu = parser.parse(code, false);
-		modifiedCu.getTypes().get(0).getMembers().get(0)
-				.setJavaDoc(new JavadocComment("javadoc"));
+		modifiedCu.getTypes().get(0).getMembers().get(0).setJavaDoc(new JavadocComment("javadoc"));
 		CompilationUnit originalCu = parser.parse(code, false);
 		List<Action> actions = getActions(originalCu, modifiedCu);
 		Assert.assertEquals(1, actions.size());
@@ -383,13 +377,12 @@ public class TestActionsInferred {
 	}
 
 	@Test
-	public void testMethodRefactor() throws Exception{
+	public void testMethodRefactor() throws Exception {
 		String code = "public interface A { public String getName();}";
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
 		md.setName("getName_");
 
 		List<Action> actions = getActions(cu2, cu);
@@ -398,31 +391,30 @@ public class TestActionsInferred {
 
 		ReplaceAction action = (ReplaceAction) actions.get(0);
 		Assert.assertEquals("public String getName_();", action.getNewText());
-		
+
 		assertCode(actions, code, "public interface A { public String getName_();}");
 	}
-	
+
 	@Test
-	public void testMethodRefactorWithInnerComments() throws Exception{
+	public void testMethodRefactorWithInnerComments() throws Exception {
 		String code = "public class A { public String getName(){ /*comment*/ }}";
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
 		md.setName("getName_");
 
 		List<Action> actions = getActions(cu2, cu);
-		
+
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
 		ReplaceAction action = (ReplaceAction) actions.get(0);
 		Assert.assertTrue(action.getNewText().contains("/*comment*/"));
 	}
-	
+
 	@Test
-	public void testEnumEntryRefactor() throws Exception{
+	public void testEnumEntryRefactor() throws Exception {
 		String code = "public enum A { FOO, BAR, }";
 		CompilationUnit cu = parser.parse(code, false);
 		String code2 = "public enum A { FOO, BAR, }";
@@ -430,16 +422,14 @@ public class TestActionsInferred {
 		EnumDeclaration ed = (EnumDeclaration) cu.getTypes().get(0);
 		ed.getEntries().get(1).setName("FOO2");
 
-		
 		List<Action> actions = getActions(cu2, cu);
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(22, actions.get(0).getBeginColumn());
-		Assert.assertEquals(22 + "BAR".length() - 1, actions.get(0)
-				.getEndColumn());
+		Assert.assertEquals(22 + "BAR".length() - 1, actions.get(0).getEndColumn());
 		Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
-		
+
 		assertCode(actions, code2, "public enum A { FOO, FOO2, }");
-		
+
 	}
 
 	@Test
@@ -477,15 +467,13 @@ public class TestActionsInferred {
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		ClassOrInterfaceDeclaration type = (ClassOrInterfaceDeclaration) cu
-				.getTypes().get(0);
+		ClassOrInterfaceDeclaration type = (ClassOrInterfaceDeclaration) cu.getTypes().get(0);
 		List<ClassOrInterfaceType> implementsList = new LinkedList<ClassOrInterfaceType>();
 		implementsList.add(new ClassOrInterfaceType("Serializable"));
 		type.setImplements(implementsList);
 
 		List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>();
-		imports.add(new ImportDeclaration(new NameExpr("java.io.Serializable"),
-				false, false));
+		imports.add(new ImportDeclaration(new NameExpr("java.io.Serializable"), false, false));
 		cu.setImports(imports);
 
 		ChangeLogVisitor visitor = new ChangeLogVisitor();
@@ -513,8 +501,7 @@ public class TestActionsInferred {
 		List<Action> actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"/*license*/\npublic class B { private int name;}");
+		assertCode(actions, code, "/*license*/\npublic class B { private int name;}");
 
 	}
 
@@ -525,8 +512,7 @@ public class TestActionsInferred {
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		FieldDeclaration fd = (FieldDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		FieldDeclaration fd = (FieldDeclaration) cu.getTypes().get(0).getMembers().get(0);
 		List<VariableDeclarator> vds = fd.getVariables();
 		vds.add(new VariableDeclarator(new VariableDeclaratorId("surname")));
 		Comment c = cu.getComments().get(0);
@@ -539,8 +525,7 @@ public class TestActionsInferred {
 		List<Action> actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"public class B { /*static*/private int name, surname;}");
+		assertCode(actions, code, "public class B { /*static*/private int name, surname;}");
 
 	}
 
@@ -560,8 +545,7 @@ public class TestActionsInferred {
 		List<Action> actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"public class B { private /*static*/ int name;}");
+		assertCode(actions, code, "public class B { private /*static*/ int name;}");
 
 	}
 
@@ -572,11 +556,9 @@ public class TestActionsInferred {
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
 		List<Parameter> params = new LinkedList<Parameter>();
-		params.add(new Parameter(new PrimitiveType(Primitive.Int),
-				new VariableDeclaratorId("p")));
+		params.add(new Parameter(new PrimitiveType(Primitive.Int), new VariableDeclaratorId("p")));
 		md.setParameters(params);
 
 		ChangeLogVisitor visitor = new ChangeLogVisitor();
@@ -586,8 +568,7 @@ public class TestActionsInferred {
 		List<Action> actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"public class B { public void foo(int p) {} }");
+		assertCode(actions, code, "public class B { public void foo(int p) {} }");
 	}
 
 	@Test
@@ -596,8 +577,7 @@ public class TestActionsInferred {
 		DefaultJavaParser parser = new DefaultJavaParser();
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
-		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
 
 		List<AnnotationExpr> annotations = new LinkedList<AnnotationExpr>();
 		annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
@@ -610,8 +590,7 @@ public class TestActionsInferred {
 		List<Action> actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"public class B { @Override public void foo(){} }");
+		assertCode(actions, code, "public class B { @Override public void foo(){} }");
 
 		code = "public class B {\n  public void foo(){\n  }\n }";
 
@@ -630,8 +609,7 @@ public class TestActionsInferred {
 		actions = visitor.getActionsToApply();
 		Assert.assertEquals(1, actions.size());
 
-		assertCode(actions, code,
-				"public class B {\n  @Override public void foo(){\n  }\n }");
+		assertCode(actions, code, "public class B {\n  @Override public void foo(){\n  }\n }");
 
 	}
 
@@ -642,8 +620,7 @@ public class TestActionsInferred {
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		ClassOrInterfaceDeclaration dec = (ClassOrInterfaceDeclaration) cu
-				.getTypes().get(0);
+		ClassOrInterfaceDeclaration dec = (ClassOrInterfaceDeclaration) cu.getTypes().get(0);
 
 		List<TypeParameter> types = dec.getTypeParameters();
 		types.add(new TypeParameter("D", null));
@@ -682,8 +659,7 @@ public class TestActionsInferred {
 		CompilationUnit cu = parser.parse(code, false);
 		CompilationUnit cu2 = parser.parse(code, false);
 
-		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0)
-				.getMembers().get(0);
+		MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
 		ExpressionStmt stmt = (ExpressionStmt) md.getBody().getStmts().get(0);
 		MethodCallExpr expr = (MethodCallExpr) stmt.getExpression();
 		expr.getArgs().add(new IntegerLiteralExpr("4"));
@@ -696,8 +672,7 @@ public class TestActionsInferred {
 		Assert.assertEquals(1, actions.size());
 		Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
-		assertCode(actions, code,
-				"public class B{ public void foo(){ print(3, 4); } }");
+		assertCode(actions, code, "public class B{ public void foo(){ print(3, 4); } }");
 
 	}
 
