@@ -175,17 +175,14 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		indentationLevel++;
 	}
 
-	public <T extends Node> int inferIndentationSize(Node parent,
-			List<T> children) {
+	public <T extends Node> int inferIndentationSize(Node parent, List<T> children) {
 		if (parent != null && children != null && !children.isEmpty()) {
 
 			Node first = children.get(0);
 			if (first.getBeginLine() != parent.getBeginLine()) {
-				indentationSize = first.getBeginColumn()
-						- parent.getBeginColumn();
+				indentationSize = first.getBeginColumn() - parent.getBeginColumn();
 				if (indentationSize < 0) {
-					indentationSize = first.getBeginColumn()
-							- parent.getEndColumn();
+					indentationSize = first.getBeginColumn() - parent.getEndColumn();
 				}
 				if (indentationSize < 0) {
 					indentationSize = 0;
@@ -216,8 +213,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 	public void setReportingPropertiesPath(String reportingPropertiesPath) {
 		this.reportingPropertiesPath = reportingPropertiesPath;
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		InputStream stream = loader
-				.getResourceAsStream(this.reportingPropertiesPath);
+		InputStream stream = loader.getResourceAsStream(this.reportingPropertiesPath);
 		try {
 			if (stream != null) {
 				properties = new Properties();
@@ -292,13 +288,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			RemoveAction action = null;
 			if (!actionsToApply.isEmpty()) {
 
-				Iterator<Action> inverseIt = actionsToApply
-						.descendingIterator();
+				Iterator<Action> inverseIt = actionsToApply.descendingIterator();
 				boolean isContained = false;
 
-				action = new RemoveAction(oi.getBeginLine(),
-						oi.getBeginColumn(), oi.getEndLine(),
-						oi.getEndColumn(), oi);
+				action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(),
+						oi);
 
 				while (inverseIt.hasNext() && !isContained) {
 					Action last = inverseIt.next();
@@ -310,24 +304,22 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					int pos = actionsToApply.size();
 					while (inverseIt.hasNext() && !added) {
 						Action current = inverseIt.next();
-						if (action.isPreviousThan(current.getEndLine(),
-								current.getEndColumn())) {
+						if (action.isPreviousThan(current.getEndLine(), current.getEndColumn())) {
 							pos--;
 						} else {
 							added = true;
 							actionsToApply.add(pos, action);
 						}
 					}
-					if(!added){
+					if (!added) {
 						actionsToApply.add(0, action);
 					}
 
 				}
 
 			} else {
-				action = new RemoveAction(oi.getBeginLine(),
-						oi.getBeginColumn(), oi.getEndLine(),
-						oi.getEndColumn(), oi);
+				action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(),
+						oi);
 				actionsToApply.add(action);
 
 			}
@@ -341,8 +333,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		AppendAction action = null;
 		if (generateActions) {
 			Position pos = position.peek();
-			action = new AppendAction(pos.getLine(), pos.getColumn(), id,
-					indentationLevel, indentationSize);
+			action = new AppendAction(pos.getLine(), pos.getColumn(), id, indentationLevel, indentationSize);
 			actionsToApply.add(action);
 		}
 		increaseAddedNodes(id.getClass());
@@ -353,19 +344,16 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Action action = null;
 			if (!actionsToApply.isEmpty()) {
 
-				Iterator<Action> inverseIt = actionsToApply
-						.descendingIterator();
+				Iterator<Action> inverseIt = actionsToApply.descendingIterator();
 				boolean finish = false;
-				action = new RemoveAction(oldNode.getBeginLine(),
-						oldNode.getBeginColumn(), oldNode.getEndLine(),
+				action = new RemoveAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode.getEndLine(),
 						oldNode.getEndColumn(), oldNode);
 				boolean isComment = newNode instanceof Comment;
 
 				boolean isInternalComment = false;
 				while (inverseIt.hasNext() && !finish) {
 					Action last = inverseIt.next();
-					if (!last.isPreviousThan(action.getBeginLine(),
-							action.getBeginColumn())) {
+					if (!last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())) {
 						if (!isComment) {
 							inverseIt.remove();
 						} else {
@@ -374,15 +362,13 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					}
 				}
 				if (!isInternalComment) {
-					action = new ReplaceAction(oldNode.getBeginLine(),
-							oldNode.getBeginColumn(), oldNode, newNode,
+					action = new ReplaceAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode, newNode,
 							indentationLevel, indentationSize, comments);
 					actionsToApply.add(action);
 				}
 
 			} else {
-				action = new ReplaceAction(oldNode.getBeginLine(),
-						oldNode.getBeginColumn(), oldNode, newNode,
+				action = new ReplaceAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode, newNode,
 						indentationLevel, indentationSize, comments);
 				actionsToApply.add(action);
 			}
@@ -401,16 +387,15 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 						T oi = null;
 						while (it2.hasNext() && !found) {
 							oi = it2.next();
-							found = (id.getBeginLine() == oi.getBeginLine() && id
-									.getBeginColumn() == oi.getBeginColumn());
+							found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi
+									.getBeginColumn());
 						}
 						if (found) {
 							VisitorContext vc = new VisitorContext();
 							vc.put(NODE_TO_COMPARE_KEY, oi);
 							// it does the update if its necessary
 
-							position.push(new Position(id.getEndLine(), id
-									.getEndColumn()));
+							position.push(new Position(id.getEndLine(), id.getEndColumn()));
 							id.accept(this, vc);
 							position.pop();
 						} else {
@@ -426,10 +411,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					T id = null;
 					while (it.hasNext() && !found) {
 						id = it.next();
-						found = (id.getBeginLine() == oi.getBeginLine() && id
-								.getBeginColumn() == oi.getBeginColumn());// ((Node)
-																			// id).isInEqualLocation((Node)
-																			// oi);
+						found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi.getBeginColumn());// ((Node)
+																														// id).isInEqualLocation((Node)
+																														// oi);
 					}
 					if (!found) {
 						applyRemove(oi);
@@ -447,8 +431,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		}
 	}
 
-	private <T extends Node> void inferASTChangesList(List<List<T>> nodes1,
-			List<List<T>> nodes2) {
+	private <T extends Node> void inferASTChangesList(List<List<T>> nodes1, List<List<T>> nodes2) {
 		if (nodes1 != null) {
 			if (nodes2 == null) {
 				for (List<T> elem : nodes1) {
@@ -562,8 +545,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				}
 
 				inferASTChanges(n.getImports(), oldCU.getImports());
-				List<Action> importsActions = new LinkedList<Action>(
-						actionsToApply);
+				List<Action> importsActions = new LinkedList<Action>(actionsToApply);
 				actionsToApply = new LinkedList<Action>();
 				inferASTChanges(n.getTypes(), oldCU.getTypes());
 				inferASTChanges(thisComments, otherComments);
@@ -622,8 +604,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			ClassOrInterfaceDeclaration aux = (ClassOrInterfaceDeclaration) o;
 
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
@@ -650,8 +631,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			} else {
 				applyUpdate(n, aux, n.getExtends(), aux.getExtends());
 				applyUpdate(n, aux, n.getImplements(), aux.getImplements());
-				applyUpdate(n, aux, n.getTypeParameters(),
-						aux.getTypeParameters());
+				applyUpdate(n, aux, n.getTypeParameters(), aux.getTypeParameters());
 				increaseUpdatedNodes(ClassOrInterfaceDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
@@ -694,10 +674,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 
 			MethodDeclaration aux = (MethodDeclaration) o;
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getArrayCount() == aux.getArrayCount()
-					&& n.getModifiers() == aux.getModifiers()
-					&& n.isDefault() == aux.isDefault();
+			boolean equals = n.getName().equals(aux.getName()) && n.getArrayCount() == aux.getArrayCount()
+					&& n.getModifiers() == aux.getModifiers() && n.isDefault() == aux.isDefault();
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
 			inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
@@ -719,8 +697,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					increaseUpdatedNodes(MethodDeclaration.class);
 				}
 			} else {
-				applyUpdate(n, aux, n.getTypeParameters(),
-						aux.getTypeParameters());
+				applyUpdate(n, aux, n.getTypeParameters(), aux.getTypeParameters());
 				applyUpdate(n, aux, n.getParameters(), aux.getParameters());
 				applyUpdate(n, aux, n.getThrows(), aux.getThrows());
 				increaseUpdatedNodes(MethodDeclaration.class);
@@ -793,8 +770,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		}
 	}
 
-	private <T extends Node, K extends Node> boolean applyUpdate(T thisNode,
-			T other, List<K> theseNodes, List<K> otherNodes) {
+	private <T extends Node, K extends Node> boolean applyUpdate(T thisNode, T other, List<K> theseNodes,
+			List<K> otherNodes) {
 		if (otherNodes == null && theseNodes == null) {
 			return false;
 		} else if (otherNodes == null || theseNodes == null) {
@@ -821,8 +798,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		return true;
 	}
 
-	private <T extends Node, K extends Node> boolean applyUpdateList(
-			T thisNode, T other, List<List<K>> theseNodes,
+	private <T extends Node, K extends Node> boolean applyUpdateList(T thisNode, T other, List<List<K>> theseNodes,
 			List<List<K>> otherNodes) {
 		if (otherNodes == null && theseNodes == null) {
 			return false;
@@ -844,8 +820,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 		return true;
 	}
 
-	private <T extends Node> void applyUpdate(T thisNode, T other,
-			Node theseProperty, Node otherProperty) {
+	private <T extends Node> void applyUpdate(T thisNode, T other, Node theseProperty, Node otherProperty) {
 		if (otherProperty == null && theseProperty == null) {
 			return;
 		} else if (otherProperty == null || theseProperty == null) {
@@ -862,8 +837,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EnumDeclaration aux = (EnumDeclaration) o;
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
@@ -906,8 +880,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 			EmptyTypeDeclaration aux = (EmptyTypeDeclaration) o;
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			String nName = n.getName();
+			String auxName = aux.getName();
+
+			boolean equals = ((nName == null && auxName == null) || 
+					(nName != null && auxName != null && nName
+					.equals(auxName))) && n.getModifiers() == aux.getModifiers();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
@@ -981,8 +959,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			AnnotationDeclaration aux = (AnnotationDeclaration) o;
 
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
@@ -1018,8 +995,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			AnnotationMemberDeclaration aux = (AnnotationMemberDeclaration) o;
 
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
 			inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
@@ -1090,8 +1066,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			ConstructorDeclaration aux = (ConstructorDeclaration) o;
 
-			boolean equals = n.getName().equals(aux.getName())
-					&& n.getModifiers() == aux.getModifiers();
+			boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
@@ -1113,8 +1088,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					increaseUpdatedNodes(ConstructorDeclaration.class);
 				}
 			} else {
-				applyUpdate(n, aux, n.getTypeParameters(),
-						aux.getTypeParameters());
+				applyUpdate(n, aux, n.getTypeParameters(), aux.getTypeParameters());
 				applyUpdate(n, aux, n.getParameters(), aux.getParameters());
 				increaseUpdatedNodes(ConstructorDeclaration.class);
 			}
@@ -1314,14 +1288,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			ReferenceType aux = (ReferenceType) o;
 
-			boolean equals = n.getType().equals(aux.getType())
-					&& n.getArrayCount() == aux.getArrayCount();
+			boolean equals = n.getType().equals(aux.getType()) && n.getArrayCount() == aux.getArrayCount();
 
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
 			inferASTChanges(n.getAnnotations(), aux.getAnnotations());
-			inferASTChangesList(n.getArraysAnnotations(),
-					aux.getArraysAnnotations());
+			inferASTChangesList(n.getArraysAnnotations(), aux.getArraysAnnotations());
 			position.pop();
 			position.push(pos);
 			if (!equals) {
@@ -1331,8 +1303,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			if (equals) {
 				increaseUnmodifiedNodes(PrimitiveType.class);
 			} else {
-				applyUpdateList(n, aux, n.getArraysAnnotations(),
-						aux.getArraysAnnotations());
+				applyUpdateList(n, aux, n.getArraysAnnotations(), aux.getArraysAnnotations());
 				increaseUpdatedNodes(PrimitiveType.class);
 			}
 			setIsUpdated(backup || isUpdated());
@@ -1402,8 +1373,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			setIsUpdated(false);
 			Position pos = position.pop();
 			position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
-			inferASTChangesList(n.getArraysAnnotations(),
-					aux.getArraysAnnotations());
+			inferASTChangesList(n.getArraysAnnotations(), aux.getArraysAnnotations());
 			inferASTChanges(n.getDimensions(), aux.getDimensions());
 			inferASTChanges(n.getType(), aux.getType());
 			position.pop();
@@ -1413,8 +1383,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				if (equals) {
 					increaseUnmodifiedNodes(ArrayCreationExpr.class);
 				} else {
-					applyUpdate(n, aux, n.getInitializer(),
-							aux.getInitializer());
+					applyUpdate(n, aux, n.getInitializer(), aux.getInitializer());
 					increaseUpdatedNodes(ArrayCreationExpr.class);
 				}
 			} else {
@@ -1449,8 +1418,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 
-			boolean equals = n.getOperator().name()
-					.equals(aux.getOperator().name());
+			boolean equals = n.getOperator().name().equals(aux.getOperator().name());
 			inferASTChanges(n.getTarget(), aux.getTarget());
 			inferASTChanges(n.getValue(), aux.getValue());
 			if (!equals) {
@@ -1476,8 +1444,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			BinaryExpr aux = (BinaryExpr) o;
 			boolean backup = isUpdated();
 			setIsUpdated(false);
-			boolean equals = n.getOperator().name()
-					.equals(aux.getOperator().name());
+			boolean equals = n.getOperator().name().equals(aux.getOperator().name());
 
 			inferASTChanges(n.getRight(), aux.getRight());
 			inferASTChanges(n.getLeft(), aux.getLeft());
@@ -1894,8 +1861,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			boolean backup = isUpdated();
 			setIsUpdated(false);
 
-			boolean equals = n.getOperator().name()
-					.equals(aux.getOperator().name());
+			boolean equals = n.getOperator().name().equals(aux.getOperator().name());
 
 			inferASTChanges(n.getExpr(), aux.getExpr());
 			if (!equals) {
@@ -2432,8 +2398,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 					increaseUpdatedNodes(MethodReferenceExpr.class);
 				}
 			} else {
-				applyUpdate(n, aux, n.getTypeParameters(),
-						aux.getTypeParameters());
+				applyUpdate(n, aux, n.getTypeParameters(), aux.getTypeParameters());
 				increaseUpdatedNodes(MethodReferenceExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
@@ -2448,8 +2413,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Collection<Object> keys = properties.keySet();
 			if (keys != null) {
 				for (Object key : keys) {
-					if ("true".equalsIgnoreCase(properties.getProperty(
-							key.toString()).toString())) {
+					if ("true".equalsIgnoreCase(properties.getProperty(key.toString()).toString())) {
 						if (addedNodes.containsKey(key.toString())) {
 							result.put(key.toString(), addedNodes.get(key));
 						} else {
@@ -2470,8 +2434,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Collection<Object> keys = properties.keySet();
 			if (keys != null) {
 				for (Object key : keys) {
-					if ("true".equalsIgnoreCase(properties.getProperty(
-							key.toString()).toString())) {
+					if ("true".equalsIgnoreCase(properties.getProperty(key.toString()).toString())) {
 						if (deletedNodes.containsKey(key.toString())) {
 							result.put(key.toString(), deletedNodes.get(key));
 						} else {
@@ -2492,8 +2455,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Collection<Object> keys = properties.keySet();
 			if (keys != null) {
 				for (Object key : keys) {
-					if ("true".equalsIgnoreCase(properties.getProperty(
-							key.toString()).toString())) {
+					if ("true".equalsIgnoreCase(properties.getProperty(key.toString()).toString())) {
 						if (updatedNodes.containsKey(key.toString())) {
 							result.put(key.toString(), updatedNodes.get(key));
 						} else {
@@ -2514,8 +2476,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			Collection<Object> keys = properties.keySet();
 			if (keys != null) {
 				for (Object key : keys) {
-					if ("true".equalsIgnoreCase(properties.getProperty(
-							key.toString()).toString())) {
+					if ("true".equalsIgnoreCase(properties.getProperty(key.toString()).toString())) {
 						if (unmodifiedNodes.containsKey(key.toString())) {
 							result.put(key.toString(), unmodifiedNodes.get(key));
 						} else {
