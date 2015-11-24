@@ -16,6 +16,7 @@ import org.walkmod.javalang.ast.body.EnumDeclaration;
 import org.walkmod.javalang.ast.body.FieldDeclaration;
 import org.walkmod.javalang.ast.body.JavadocComment;
 import org.walkmod.javalang.ast.body.MethodDeclaration;
+import org.walkmod.javalang.ast.body.ModifierSet;
 import org.walkmod.javalang.ast.body.Parameter;
 import org.walkmod.javalang.ast.body.TypeDeclaration;
 import org.walkmod.javalang.ast.body.VariableDeclarator;
@@ -569,6 +570,26 @@ public class TestActionsInferred {
 		Assert.assertEquals(1, actions.size());
 
 		assertCode(actions, code, "public class B { public void foo(int p) {} }");
+	}
+	
+	@Test
+	public void testModifyModifers() throws ParseException {
+		String code = "public class B { public String foo; }";
+		DefaultJavaParser parser = new DefaultJavaParser();
+		CompilationUnit cu = parser.parse(code, false);
+		CompilationUnit cu2 = parser.parse(code, false);
+
+		FieldDeclaration md = (FieldDeclaration) cu.getTypes().get(0).getMembers().get(0);
+		md.setModifiers(ModifierSet.PRIVATE);
+
+		ChangeLogVisitor visitor = new ChangeLogVisitor();
+		VisitorContext ctx = new VisitorContext();
+		ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+		visitor.visit((CompilationUnit) cu, ctx);
+		List<Action> actions = visitor.getActionsToApply();
+		Assert.assertEquals(1, actions.size());
+
+		assertCode(actions, code, "public class B { private String foo; }");
 	}
 
 	@Test

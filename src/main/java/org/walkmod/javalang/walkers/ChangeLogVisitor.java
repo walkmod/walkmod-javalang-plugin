@@ -720,8 +720,14 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			inferASTChanges(n.getVariables(), aux.getVariables());
 			position.pop();
 			position.push(pos);
-			if (!isUpdated && n.getModifiers() == aux.getModifiers()) {
-				increaseUnmodifiedNodes(FieldDeclaration.class);
+			if (!isUpdated) {
+				if(n.getModifiers() == aux.getModifiers()){
+					increaseUnmodifiedNodes(FieldDeclaration.class);
+				}
+				else{
+					applyUpdate(n, aux);
+					increaseUpdatedNodes(FieldDeclaration.class);
+				}
 			} else {
 				applyUpdate(n, aux, n.getVariables(), aux.getVariables());
 				increaseUpdatedNodes(FieldDeclaration.class);
