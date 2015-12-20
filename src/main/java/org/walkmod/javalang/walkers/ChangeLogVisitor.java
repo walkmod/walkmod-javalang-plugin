@@ -223,7 +223,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				}
 			} else {
 				properties = null;
-				log.warn("The system cannot found the reporting.properties in the classpath. It will report all code changes");
+				//log.warn("The system cannot found the reporting.properties in the classpath. It will report all code changes");
 			}
 		} finally {
 			try {
