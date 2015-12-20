@@ -212,8 +212,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
 	public void setReportingPropertiesPath(String reportingPropertiesPath) {
 		this.reportingPropertiesPath = reportingPropertiesPath;
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		InputStream stream = loader.getResourceAsStream(this.reportingPropertiesPath);
+		InputStream stream = getClass().getClassLoader().getResourceAsStream(this.reportingPropertiesPath);
 		try {
 			if (stream != null) {
 				properties = new Properties();
