@@ -9,8 +9,10 @@
 	<bean id="walkmod:commons:comment-policy" class="org.walkmod.merger.AddAllMergePolicy" />
 
 	<bean id="org.walkmod:walkmod-javalang-plugin:walker" class="org.walkmod.javalang.walkers.DefaultJavaWalker"
-		singleton="false" />
-		
+		singleton="false">
+	</bean>
+
+
 	<bean id="org.walkmod:walkmod-javalang-plugin:parser" class="org.walkmod.javalang.walkers.DefaultJavaParser"
 		singleton="false" />
 
