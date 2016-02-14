@@ -19,6 +19,7 @@ package org.walkmod.javalang.walkers;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,8 @@ import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.compiler.symbols.SymbolVisitorAdapter;
 import org.walkmod.javalang.util.FileUtils;
+import org.walkmod.modelchecker.Constraint;
+import org.walkmod.modelchecker.ConstraintProvider;
 import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.ChangeLogPrinter;
 import org.walkmod.walkers.Parser;
@@ -72,6 +75,10 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    private ClasspathEvaluator classpathEvaluator = null;
 
+   private List<ConstraintProvider<?>> constraintProv = null;
+
+   private List<String> constraintProviders = null;
+
    public void accept(File file) throws Exception {
       originalFile = file;
       visit(file);
@@ -87,6 +94,14 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    public void setOnlyIncrementalWrites(boolean onlyIncrementalWrites) {
       this.onlyIncrementalWrites = onlyIncrementalWrites;
+   }
+
+   public void setConstraintProviders(List<String> constraints) {
+      this.constraintProviders = constraints;
+   }
+
+   public List<String> getConstraintProviders() {
+      return constraintProviders;
    }
 
    public boolean requiresSemanticAnalysis() {
@@ -129,7 +144,17 @@ public class DefaultJavaWalker extends AbstractWalker {
    @Override
    public void execute() throws Exception {
       calculateClasspath();
-
+      List<String> consProv = getConstraintProviders();
+      if (consProv != null) {
+         Configuration conf = getChainConfig().getConfiguration();
+         constraintProv = new LinkedList<ConstraintProvider<?>>();
+         for (String cons : consProv) {
+            if (conf.containsBean(cons)) {
+               ConstraintProvider<?> cp = (ConstraintProvider) conf.getBean(cons, null);
+               constraintProv.add(cp);
+            }
+         }
+      }
       super.execute();
    }
 
@@ -173,7 +198,14 @@ public class DefaultJavaWalker extends AbstractWalker {
                         "There is no available project classpath to apply " + "a semantic analysis");
                }
             }
-
+            if (constraintProv != null) {
+               List<Constraint> constraints = new LinkedList<Constraint>();
+               for (ConstraintProvider cp : constraintProv) {
+                  Constraint<?> c = cp.getConstraint(cu);
+                  constraints.add(c);
+               }
+               cu.setConstraints(constraints);
+            }
             log.debug(file.getPath() + " [ visiting ]");
             visit(cu);
             log.debug(file.getPath() + " [ visited ]");
