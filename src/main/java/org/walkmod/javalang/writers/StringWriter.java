@@ -52,11 +52,11 @@ public class StringWriter extends AbstractFileWriter {
 
    @Override
    public String getContent(Object n, VisitorContext vc) {
-      if (vc != null && vc.containsKey(DefaultJavaWalker.ACTIONS_TO_APPY_KEY)) {
+      File original = (File) vc.get(DefaultJavaWalker.ORIGINAL_FILE_KEY);
+      if (vc != null && vc.containsKey(DefaultJavaWalker.ACTIONS_TO_APPY_KEY) && original != null) {
          @SuppressWarnings("unchecked")
          List<Action> actions = (List<Action>) vc.get(DefaultJavaWalker.ACTIONS_TO_APPY_KEY);
          ActionsApplier actionsApplier = new ActionsApplier();
-         File original = (File) vc.get(DefaultJavaWalker.ORIGINAL_FILE_KEY);
          actionsApplier.setActionList(actions);
          actionsApplier.setText(original);
          actionsApplier.execute();
