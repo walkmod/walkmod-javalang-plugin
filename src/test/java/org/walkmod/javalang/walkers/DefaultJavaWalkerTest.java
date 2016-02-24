@@ -12,6 +12,7 @@ import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
 import org.walkmod.conf.entities.impl.WalkerConfigImpl;
 import org.walkmod.javalang.ast.CompilationUnit;
+import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 import org.walkmod.walkers.VisitorContext;
 
@@ -56,11 +57,57 @@ public class DefaultJavaWalkerTest {
          FileUtils.deleteDirectory(sampleDir);
       }
    }
+   
+   @Test
+   public void testExceptionsOnAnalysisSemantic() throws Exception{
+      DefaultJavaWalker walker = new DefaultJavaWalker();
+      File sampleDir = new File("src/test/resources/test1");
+      if (sampleDir.exists()) {
+         FileUtils.deleteDirectory(sampleDir);
+      }
+      sampleDir.mkdirs();
+      File fooClass = new File(sampleDir, "Foo.java");
+      fooClass.createNewFile();
+      FileUtils.write(fooClass, "import bar.InvalidClass; public class Foo {}");
+      List<Object> visitors = new LinkedList<Object>();
+      EmptySemanticVisitor instance = new EmptySemanticVisitor();
+      visitors.add(instance);
+      walker.setVisitors(visitors);
+      walker.setParser(new DefaultJavaParser());
+      walker.setClassLoader(this.getClass().getClassLoader());
+
+      ChainConfigImpl cfg = new ChainConfigImpl();
+      WalkerConfigImpl walkerCfg = new WalkerConfigImpl();
+
+      List<TransformationConfig> transformations = new LinkedList<TransformationConfig>();
+      TransformationConfigImpl tcfg = new TransformationConfigImpl();
+      tcfg.setVisitorInstance(instance);
+      transformations.add(tcfg);
+      walkerCfg.setTransformations(transformations);
+
+      cfg.setWalkerConfig(walkerCfg);
+      walker.setChainConfig(cfg);
+      try {
+         walker.accept(fooClass);
+      } catch (Exception e) {
+         String message = e.getMessage();
+         Assert.assertTrue(message.contains("Error processing the analysis of [" + fooClass.getCanonicalPath() + "]"));
+         
+      } finally {
+         fooClass.delete();
+         FileUtils.deleteDirectory(sampleDir);
+      }
+   }
 
    public class VisitorWithException extends VoidVisitorAdapter<VisitorContext> {
       @Override
       public void visit(CompilationUnit cu, VisitorContext vc) {
          throw new RuntimeException("Hello");
       }
+   }
+   
+   @RequiresSemanticAnalysis
+   public class EmptySemanticVisitor extends VoidVisitorAdapter<VisitorContext>{
+      
    }
 }

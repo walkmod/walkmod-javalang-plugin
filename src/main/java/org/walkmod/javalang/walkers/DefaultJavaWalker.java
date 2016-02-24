@@ -192,7 +192,14 @@ public class DefaultJavaWalker extends AbstractWalker {
                if (cl != null) {
                   SymbolVisitorAdapter<HashMap<String, Object>> visitor = new SymbolVisitorAdapter<HashMap<String, Object>>();
                   visitor.setClassLoader(cl);
-                  visitor.visit(cu, new HashMap<String, Object>());
+                  try {
+                     visitor.visit(cu, new HashMap<String, Object>());
+                  } catch (Exception e) {
+                     String message = "Error processing the analysis of [" + file.getCanonicalPath() + "]";
+                     WalkModException e1 = new WalkModException(message, e);
+                     e1.setStackTrace(e.getStackTrace());
+                     throw e1;
+                  }
                } else {
                   throw new WalkModException(
                         "There is no available project classpath to apply " + "a semantic analysis");
