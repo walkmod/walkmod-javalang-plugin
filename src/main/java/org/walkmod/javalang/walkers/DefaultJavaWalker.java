@@ -379,7 +379,22 @@ public class DefaultJavaWalker extends AbstractWalker {
    protected void visit(Object element) throws Exception {
       VisitorContext context = new VisitorContext(getChainConfig());
       context.put(ORIGINAL_FILE_KEY, originalFile);
-      visit(element, context);
+      try {
+         visit(element, context);
+      } catch (Exception e) {
+         String message;
+         if (originalFile != null) {
+            message = "Error processing [" + originalFile.getCanonicalPath() + "]";
+         } else {
+            message = "Error processing a Java file ";
+         }
+         WalkModException e1 = new WalkModException(message, e.getCause());
+         Throwable cause = e.getCause();
+         if (cause != null) {
+            e1.setStackTrace(e.getCause().getStackTrace());
+         }
+         throw e1;
+      }
       addVisitorMessages(context);
    }
 
