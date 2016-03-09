@@ -876,7 +876,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(EnumDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(EmptyTypeDeclaration n, VisitorContext ctx) {
@@ -916,7 +919,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(EmptyTypeDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(EnumConstantDeclaration n, VisitorContext ctx) {
@@ -954,7 +960,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(EnumConstantDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(AnnotationDeclaration n, VisitorContext ctx) {
@@ -990,7 +999,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(AnnotationDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(AnnotationMemberDeclaration n, VisitorContext ctx) {
@@ -1022,7 +1034,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(AnnotationMemberDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(VariableDeclarator n, VisitorContext ctx) {
@@ -1039,7 +1054,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(VariableDeclarator.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(VariableDeclaratorId n, VisitorContext ctx) {
@@ -1061,7 +1079,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(VariableDeclaratorId.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ConstructorDeclaration n, VisitorContext ctx) {
@@ -1098,7 +1119,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ConstructorDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(MultiTypeParameter n, VisitorContext ctx) {
@@ -1128,7 +1152,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(Parameter.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(Parameter n, VisitorContext ctx) {
@@ -1159,7 +1186,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(Parameter.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(EmptyMemberDeclaration n, VisitorContext ctx) {
@@ -1181,7 +1211,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(EmptyMemberDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(InitializerDeclaration n, VisitorContext ctx) {
@@ -1204,7 +1237,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(InitializerDeclaration.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(JavadocComment n, VisitorContext ctx) {
@@ -1225,7 +1261,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(JavadocComment.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ClassOrInterfaceType n, VisitorContext ctx) {
@@ -1257,7 +1296,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ClassOrInterfaceType.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(PrimitiveType n, VisitorContext ctx) {
@@ -1283,7 +1325,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(PrimitiveType.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ReferenceType n, VisitorContext ctx) {
@@ -1312,7 +1357,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(PrimitiveType.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(VoidType n, VisitorContext ctx) {
@@ -1343,7 +1391,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(WildcardType.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ArrayAccessExpr n, VisitorContext ctx) {
@@ -1361,7 +1412,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ArrayAccessExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ArrayCreationExpr n, VisitorContext ctx) {
@@ -1395,7 +1449,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ArrayCreationExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ArrayInitializerExpr n, VisitorContext ctx) {
@@ -1413,7 +1470,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ArrayInitializerExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(AssignExpr n, VisitorContext ctx) {
@@ -1440,7 +1500,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(AssignExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(BinaryExpr n, VisitorContext ctx) {
@@ -1466,7 +1529,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(BinaryExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(CastExpr n, VisitorContext ctx) {
@@ -1483,7 +1549,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(CastExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ClassExpr n, VisitorContext ctx) {
@@ -1499,7 +1568,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ClassExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ConditionalExpr n, VisitorContext ctx) {
@@ -1518,6 +1590,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(EnclosedExpr n, VisitorContext ctx) {
@@ -1534,6 +1610,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(FieldAccessExpr n, VisitorContext ctx) {
@@ -1560,6 +1640,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(InstanceOfExpr n, VisitorContext ctx) {
@@ -1576,7 +1660,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(InstanceOfExpr.class);
 			}
 			setIsUpdated(backup || isUpdated());
-		}
+		}else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(StringLiteralExpr n, VisitorContext ctx) {
@@ -1593,6 +1680,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(IntegerLiteralExpr n, VisitorContext ctx) {
@@ -1609,6 +1700,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(LongLiteralExpr n, VisitorContext ctx) {
@@ -1625,6 +1720,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(IntegerLiteralMinValueExpr n, VisitorContext ctx) {
@@ -1641,6 +1740,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(LongLiteralMinValueExpr n, VisitorContext ctx) {
@@ -1657,6 +1760,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(CharLiteralExpr n, VisitorContext ctx) {
@@ -1673,6 +1780,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(DoubleLiteralExpr n, VisitorContext ctx) {
@@ -1689,6 +1800,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(BooleanLiteralExpr n, VisitorContext ctx) {
@@ -1705,6 +1820,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(NullLiteralExpr n, VisitorContext ctx) {
@@ -1750,6 +1869,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+		   setIsUpdated(true);
+		   applyUpdate(n, (Node) o);
+		}
 	}
 
 	public void visit(NameExpr n, VisitorContext ctx) {
@@ -1766,6 +1889,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ObjectCreationExpr n, VisitorContext ctx) {
@@ -1795,6 +1922,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(QualifiedNameExpr n, VisitorContext ctx) {
@@ -1820,6 +1951,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ThisExpr n, VisitorContext ctx) {
@@ -1839,6 +1974,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(SuperExpr n, VisitorContext ctx) {
@@ -1857,6 +1996,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(UnaryExpr n, VisitorContext ctx) {
@@ -1883,6 +2026,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(VariableDeclarationExpr n, VisitorContext ctx) {
@@ -1915,6 +2062,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(MarkerAnnotationExpr n, VisitorContext ctx) {
@@ -1931,6 +2082,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(SingleMemberAnnotationExpr n, VisitorContext ctx) {
@@ -1949,6 +2104,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(NormalAnnotationExpr n, VisitorContext ctx) {
@@ -1968,6 +2127,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(MemberValuePair n, VisitorContext ctx) {
@@ -1994,6 +2157,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ExplicitConstructorInvocationStmt n, VisitorContext ctx) {
@@ -2014,6 +2181,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(TypeDeclarationStmt n, VisitorContext ctx) {
@@ -2030,6 +2201,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(AssertStmt n, VisitorContext ctx) {
@@ -2048,6 +2223,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(BlockStmt n, VisitorContext ctx) {
@@ -2068,6 +2247,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 
 	}
 
@@ -2093,6 +2276,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(EmptyStmt n, VisitorContext ctx) {
@@ -2116,6 +2303,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(SwitchStmt n, VisitorContext ctx) {
@@ -2135,6 +2326,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(SwitchEntryStmt n, VisitorContext ctx) {
@@ -2152,6 +2347,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(BreakStmt n, VisitorContext ctx) {
@@ -2165,6 +2364,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(BreakStmt.class);
 			}
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ReturnStmt n, VisitorContext ctx) {
@@ -2182,6 +2385,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(IfStmt n, VisitorContext ctx) {
@@ -2201,6 +2408,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(WhileStmt n, VisitorContext ctx) {
@@ -2218,6 +2429,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ContinueStmt n, VisitorContext ctx) {
@@ -2231,6 +2446,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 				increaseUpdatedNodes(ContinueStmt.class);
 			}
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(DoStmt n, VisitorContext ctx) {
@@ -2248,6 +2467,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ForeachStmt n, VisitorContext ctx) {
@@ -2266,6 +2489,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ForStmt n, VisitorContext ctx) {
@@ -2286,6 +2513,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(ThrowStmt n, VisitorContext ctx) {
@@ -2302,6 +2533,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(SynchronizedStmt n, VisitorContext ctx) {
@@ -2319,6 +2554,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(TryStmt n, VisitorContext ctx) {
@@ -2339,6 +2578,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(CatchClause n, VisitorContext ctx) {
@@ -2356,6 +2599,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(LambdaExpr n, VisitorContext ctx) {
@@ -2380,6 +2627,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public void visit(MethodReferenceExpr n, VisitorContext ctx) {
@@ -2408,6 +2659,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 			}
 			setIsUpdated(backup || isUpdated());
 		}
+		else if(o != null){
+         setIsUpdated(true);
+         applyUpdate(n, (Node) o);
+      }
 	}
 
 	public Map<String, Integer> getAddedNodes() {
