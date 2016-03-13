@@ -317,13 +317,7 @@ public class DefaultJavaWalker extends AbstractWalker {
                      log.info(">> " + name);
                      ChangeLogPrinter printer = new ChangeLogPrinter(auxAdded, auxUpdated, auxDeleted, auxUnmodified);
                      printer.print();
-                     /*
-                     File outputDir = new File(getChainConfig().getWriterConfig().getPath());
                      
-                     File inputDir = new File(getChainConfig().getReaderConfig().getPath());
-                     if (!outputDir.equals(inputDir)) {
-                        vc.remove(ORIGINAL_FILE_KEY);
-                     }*/
                      write(element, vc);
                      log.debug(originalFile.getPath() + " [ written ]");
                   } else {
@@ -349,17 +343,17 @@ public class DefaultJavaWalker extends AbstractWalker {
 
                         if (!outputDir.exists()) {
                            log.info("++ " + name);
-                          // vc.remove(ORIGINAL_FILE_KEY);
+                          
                            write(element, vc);
                            log.debug(outputDir.getPath() + " [ created ]");
                            log.debug(outputDir.getPath() + " [ written ]");
                         } else {
                            if (!outputDir.equals(originalFile)) {
-                              //vc.put(ORIGINAL_FILE_KEY, outputDir);
+                             
                               write(element, vc);
                               log.debug(outputDir.getPath() + " [ overwritten ]");
                            } else if (!onlyWriteChanges) {
-                              //vc.put(ORIGINAL_FILE_KEY, outputDir);
+                              
                               write(element, vc);
                               log.debug(outputDir.getPath() + " [ overwritten ]");
                            } else {
@@ -372,7 +366,7 @@ public class DefaultJavaWalker extends AbstractWalker {
             }
          } else {
             log.info(">> " + originalFile.getPath());
-            //vc.remove(ORIGINAL_FILE_KEY);
+            
             write(element, vc);
          }
       }

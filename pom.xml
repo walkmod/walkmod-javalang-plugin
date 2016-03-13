@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-javalang-plugin</artifactId>
-	<version>2.5.6</version>
+	<version>3.0.0</version>
 	<url>https://github.com/rpau/walkmod-javalang-plugin</url>
 	<licenses>
 		<license>
