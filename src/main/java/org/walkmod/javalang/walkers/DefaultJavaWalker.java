@@ -194,7 +194,7 @@ public class DefaultJavaWalker extends AbstractWalker {
                   visitor.setClassLoader(cl);
                   try {
                      visitor.visit(cu, new HashMap<String, Object>());
-                  } catch (Exception e) {
+                  } catch (Throwable e) {
                      String message = "Error processing the analysis of [" + file.getCanonicalPath() + "]";
                      WalkModException e1 = new WalkModException(message, e);
                      e1.setStackTrace(e.getStackTrace());
@@ -388,7 +388,7 @@ public class DefaultJavaWalker extends AbstractWalker {
       context.put(ORIGINAL_FILE_KEY, originalFile);
       try {
          visit(element, context);
-      } catch (Exception e) {
+      } catch (Throwable e) {
          String message;
          if (originalFile != null) {
             message = "Error processing [" + originalFile.getCanonicalPath() + "]";
