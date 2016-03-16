@@ -55,6 +55,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    private boolean onlyIncrementalWrites = true;
 
+   private boolean ignoreErrors = false;
+
    private Map<String, Integer> added = new HashMap<String, Integer>();
 
    private Map<String, Integer> deleted = new HashMap<String, Integer>();
@@ -400,7 +402,11 @@ public class DefaultJavaWalker extends AbstractWalker {
          if (cause != null) {
             e1.setStackTrace(e.getCause().getStackTrace());
          }
-         throw e1;
+         if (!ignoreErrors) {
+            throw e1;
+         } else {
+            log.error(message, e1);
+         }
       }
       addVisitorMessages(context);
    }
@@ -500,6 +506,10 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    public void setOnlyWriteChanges(boolean onlyWriteChanges) {
       this.onlyWriteChanges = onlyWriteChanges;
+   }
+
+   public void setIgnoreErrors(boolean ignoreErrors) {
+      this.ignoreErrors = ignoreErrors;
    }
 
    public boolean getRequiresSemanticAnalysis() {
