@@ -204,6 +204,7 @@ public class DefaultJavaWalker extends AbstractWalker {
                         throw e1;
                      } else {
                         log.error(message, e1);
+                        return;
                      }
                   }
                } else {
