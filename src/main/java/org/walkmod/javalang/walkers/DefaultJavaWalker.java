@@ -200,7 +200,11 @@ public class DefaultJavaWalker extends AbstractWalker {
                      String message = "Error processing the analysis of [" + file.getCanonicalPath() + "]";
                      WalkModException e1 = new WalkModException(message, e);
                      e1.setStackTrace(e.getStackTrace());
-                     throw e1;
+                     if (!ignoreErrors) {
+                        throw e1;
+                     } else {
+                        log.error(message, e1);
+                     }
                   }
                } else {
                   throw new WalkModException(
