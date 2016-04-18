@@ -28,6 +28,7 @@ import org.walkmod.javalang.ast.expr.MethodCallExpr;
 import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.ast.expr.NormalAnnotationExpr;
 import org.walkmod.javalang.ast.stmt.ExpressionStmt;
+import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.ast.type.ClassOrInterfaceType;
 import org.walkmod.javalang.ast.type.PrimitiveType;
 import org.walkmod.javalang.ast.type.PrimitiveType.Primitive;
@@ -716,6 +717,30 @@ public class TestActionsInferred {
 		TypeDeclaration td = cu.getTypes().get(0);
 		int indentation = visitor.inferIndentationSize(td, td.getMembers());
 		Assert.assertEquals(1, indentation);
+	}
+	
+	@Test
+	public void testChangesOnStmts() throws ParseException{
+	   String code = "public class Bar{\n    public void foo() {\n        String s = null;\n        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n    }\n}";
+	   DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+      
+      MethodDeclaration md = (MethodDeclaration) cu2.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      stmts.remove(0);
+      
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
+
+      assertCode(actions, code, "public class Bar{\n    public void foo() {\n        \n        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n    }\n}");
+
+      
 	}
 
 }
