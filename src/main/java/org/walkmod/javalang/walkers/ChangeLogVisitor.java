@@ -29,6 +29,7 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.javalang.actions.Action;
+import org.walkmod.javalang.actions.ActionType;
 import org.walkmod.javalang.actions.AppendAction;
 import org.walkmod.javalang.actions.RemoveAction;
 import org.walkmod.javalang.actions.ReplaceAction;
@@ -290,11 +291,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
             Iterator<Action> inverseIt = actionsToApply.descendingIterator();
             boolean isContained = false;
-
+            
             action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
-
+            Action last = null;
             while (inverseIt.hasNext() && !isContained) {
-               Action last = inverseIt.next();
+               last = inverseIt.next();
                isContained = last.contains(action);
             }
             if (!isContained) {
@@ -313,8 +314,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                if (!added) {
                   actionsToApply.add(0, action);
                }
-
+               
             }
+            
 
          } else {
             action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
@@ -375,6 +377,23 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
    private <T extends Node> void inferASTChanges(List<T> nodes1, List<T> nodes2) {
       if (nodes1 != null) {
+         if (nodes2 != null) {
+            for (T oi : nodes2) {
+               boolean found = false;
+               Iterator<T> it = nodes1.iterator();
+               T id = null;
+               while (it.hasNext() && !found) {
+                  id = it.next();
+                  found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi.getBeginColumn());// ((Node)
+                  // id).isInEqualLocation((Node)
+                  // oi);
+               }
+               if (!found) {
+                  applyRemove(oi);
+
+               }
+            }
+         }
          for (T id : nodes1) {
             if (id.isNewNode()) {
                applyAppend(id);
@@ -401,23 +420,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                }
             }
          }
-         if (nodes2 != null) {
-            for (T oi : nodes2) {
-               boolean found = false;
-               Iterator<T> it = nodes1.iterator();
-               T id = null;
-               while (it.hasNext() && !found) {
-                  id = it.next();
-                  found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi.getBeginColumn());// ((Node)
-                  // id).isInEqualLocation((Node)
-                  // oi);
-               }
-               if (!found) {
-                  applyRemove(oi);
-
-               }
-            }
-         }
+         
       } else {
          if (nodes2 != null) {
             for (T elem : nodes2) {
@@ -1889,7 +1892,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          if (n.getName().equals(aux.getName())) {
             increaseUnmodifiedNodes(NameExpr.class);
          } else {
-            applyUpdate(n, (Node) o);
+            applyUpdate((Node) o, n);
             increaseUpdatedNodes(NameExpr.class);
          }
          setIsUpdated(backup || isUpdated());
@@ -2223,7 +2226,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
    public void visit(BlockStmt n, VisitorContext ctx) {
 
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
-      if (o != null && o instanceof BlockStmt) {
+      if (o != null && o instanceof BlockStmt && !n.isNewNode()) {
          BlockStmt aux = (BlockStmt) o;
          boolean backup = isUpdated();
          setIsUpdated(false);
