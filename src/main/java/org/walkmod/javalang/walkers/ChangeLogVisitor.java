@@ -353,12 +353,16 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean isInternalComment = false;
             while (inverseIt.hasNext() && !finish) {
                Action last = inverseIt.next();
-               if (!last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())) {
+               if (action.contains(last)) {
                   if (!isComment) {
                      inverseIt.remove();
                   } else {
                      isInternalComment = true;
                   }
+               }
+               else if(isComment && !last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())){
+                  //overlaps
+                  isInternalComment = true;
                }
             }
             if (!isInternalComment) {
@@ -2304,6 +2308,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
       if (o != null && o instanceof SwitchStmt) {
          SwitchStmt aux = (SwitchStmt) o;
+         
          boolean backup = isUpdated();
          setIsUpdated(false);
          inferASTChanges(n.getSelector(), aux.getSelector());
@@ -2316,6 +2321,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             increaseUpdatedNodes(SwitchStmt.class);
          }
          setIsUpdated(backup || isUpdated());
+    
       } else if (o != null) {
          setIsUpdated(true);
          applyUpdate(n, (Node) o);
@@ -2326,16 +2332,22 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
       if (o != null && o instanceof SwitchEntryStmt) {
          SwitchEntryStmt aux = (SwitchEntryStmt) o;
+       
          boolean backup = isUpdated();
          setIsUpdated(false);
          inferASTChanges(n.getLabel(), aux.getLabel());
+         Position pos = position.pop();
+         position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
          inferASTChanges(n.getStmts(), aux.getStmts());
+         position.pop();
+         position.push(pos);
          if (!isUpdated()) {
             increaseUnmodifiedNodes(SwitchEntryStmt.class);
          } else {
             increaseUpdatedNodes(SwitchEntryStmt.class);
          }
          setIsUpdated(backup || isUpdated());
+        
       } else if (o != null) {
          setIsUpdated(true);
          applyUpdate(n, (Node) o);
