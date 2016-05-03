@@ -108,6 +108,7 @@ import org.walkmod.javalang.ast.stmt.ForeachStmt;
 import org.walkmod.javalang.ast.stmt.IfStmt;
 import org.walkmod.javalang.ast.stmt.LabeledStmt;
 import org.walkmod.javalang.ast.stmt.ReturnStmt;
+import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.ast.stmt.SwitchEntryStmt;
 import org.walkmod.javalang.ast.stmt.SwitchStmt;
 import org.walkmod.javalang.ast.stmt.SynchronizedStmt;
@@ -291,7 +292,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
             Iterator<Action> inverseIt = actionsToApply.descendingIterator();
             boolean isContained = false;
-            
+
             action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
             Action last = null;
             while (inverseIt.hasNext() && !isContained) {
@@ -314,9 +315,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                if (!added) {
                   actionsToApply.add(0, action);
                }
-               
+
             }
-            
 
          } else {
             action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
@@ -359,8 +359,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                   } else {
                      isInternalComment = true;
                   }
-               }
-               else if(isComment && !last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())){
+               } else if (isComment && !last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())) {
                   //overlaps
                   isInternalComment = true;
                }
@@ -424,7 +423,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                }
             }
          }
-         
+
       } else {
          if (nodes2 != null) {
             for (T elem : nodes2) {
@@ -2308,7 +2307,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
       if (o != null && o instanceof SwitchStmt) {
          SwitchStmt aux = (SwitchStmt) o;
-         
+
          boolean backup = isUpdated();
          setIsUpdated(false);
          inferASTChanges(n.getSelector(), aux.getSelector());
@@ -2321,7 +2320,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             increaseUpdatedNodes(SwitchStmt.class);
          }
          setIsUpdated(backup || isUpdated());
-    
+
       } else if (o != null) {
          setIsUpdated(true);
          applyUpdate(n, (Node) o);
@@ -2332,12 +2331,24 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
       if (o != null && o instanceof SwitchEntryStmt) {
          SwitchEntryStmt aux = (SwitchEntryStmt) o;
-       
+
          boolean backup = isUpdated();
          setIsUpdated(false);
          inferASTChanges(n.getLabel(), aux.getLabel());
          Position pos = position.pop();
-         position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
+         if (n.getLabel() != null) {
+            position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
+         } else {
+            List<Statement> stmts = n.getStmts();
+            if(!stmts.isEmpty()){
+               Statement first = stmts.get(0);
+               position.push(new Position(first.getBeginLine(), first.getBeginColumn()));
+            }
+            else{
+               position.push(pos);
+            }
+         }
+
          inferASTChanges(n.getStmts(), aux.getStmts());
          position.pop();
          position.push(pos);
@@ -2347,7 +2358,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             increaseUpdatedNodes(SwitchEntryStmt.class);
          }
          setIsUpdated(backup || isUpdated());
-        
+
       } else if (o != null) {
          setIsUpdated(true);
          applyUpdate(n, (Node) o);

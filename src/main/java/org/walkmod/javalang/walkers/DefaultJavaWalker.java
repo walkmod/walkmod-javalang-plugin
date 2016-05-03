@@ -407,6 +407,9 @@ public class DefaultJavaWalker extends AbstractWalker {
          if (cause != null) {
             e1.setStackTrace(e.getCause().getStackTrace());
          }
+         else{
+            e1.setStackTrace(e.getStackTrace());
+         }
          if (!ignoreErrors) {
             throw e1;
          } else {
