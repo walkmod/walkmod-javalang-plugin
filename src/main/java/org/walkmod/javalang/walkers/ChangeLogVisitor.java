@@ -29,7 +29,6 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.javalang.actions.Action;
-import org.walkmod.javalang.actions.ActionType;
 import org.walkmod.javalang.actions.AppendAction;
 import org.walkmod.javalang.actions.RemoveAction;
 import org.walkmod.javalang.actions.ReplaceAction;
@@ -1549,6 +1548,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                increaseUpdatedNodes(BinaryExpr.class);
             }
          } else {
+            applyUpdate(n, (Node) o);
             increaseUpdatedNodes(BinaryExpr.class);
          }
          setIsUpdated(backup || isUpdated());
@@ -2340,7 +2340,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
          } else {
             List<Statement> stmts = n.getStmts();
-            if(!stmts.isEmpty()){
+            if(stmts != null && !stmts.isEmpty()){
                Statement first = stmts.get(0);
                position.push(new Position(first.getBeginLine(), first.getBeginColumn()));
             }

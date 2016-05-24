@@ -279,7 +279,7 @@ public class TestActionsInferred {
       Assert.assertEquals(2, actions.get(0).getBeginLine());
       Assert.assertEquals(1, actions.get(0).getBeginColumn());
 
-      assertCode(actions, code, "package org;\nimport org.walkmod.B;\n@Foo() @Override\npublic class A {}");
+      assertCode(actions, code, "package org;\nimport org.walkmod.B;\n@Foo()\n@Override\npublic class A {}");
 
    }
 
@@ -635,7 +635,7 @@ public class TestActionsInferred {
       actions = visitor.getActionsToApply();
       Assert.assertEquals(1, actions.size());
 
-      assertCode(actions, code, "public class B {\n  @Override public void foo(){\n  }\n }");
+      assertCode(actions, code, "public class B {\n  @Override\n  public void foo(){\n  }\n }");
 
    }
 
