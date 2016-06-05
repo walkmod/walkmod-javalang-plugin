@@ -379,7 +379,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
    private <T extends Node> void inferASTChanges(List<T> nodes1, List<T> nodes2) {
       if (nodes1 != null) {
+         List<Integer> removedNodes = new LinkedList<Integer>();
          if (nodes2 != null) {
+            int i = 0;
             for (T oi : nodes2) {
                boolean found = false;
                Iterator<T> it = nodes1.iterator();
@@ -392,13 +394,20 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                }
                if (!found) {
                   applyRemove(oi);
-
+                  removedNodes.add(i);
                }
+               i++;
             }
          }
+         int i = 0;
          for (T id : nodes1) {
             if (id.isNewNode()) {
-               applyAppend(id);
+               if(!removedNodes.contains(i)){
+                  applyAppend(id);
+               }
+               else{
+                  //applyUpdate(id, nodes2.get(i));
+               }
             } else {
                if (nodes2 != null) {
                   boolean found = false;
@@ -421,6 +430,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                   }
                }
             }
+            i++;
          }
 
       } else {

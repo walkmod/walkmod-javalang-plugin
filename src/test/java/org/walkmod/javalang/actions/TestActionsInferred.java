@@ -107,6 +107,32 @@ public class TestActionsInferred {
       assertCode(actions, original, "public class A { private String name; }");
 
    }
+   
+   @Test
+   public void testReplaceArgument() throws Exception{
+      String code = "public class A { public void foo() { LOG.info(foo()); }}";
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
+      MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
+      List<Expression> newArgs = new LinkedList<Expression>();  
+      newArgs.add(new NameExpr("e"));
+      
+      MethodCallExpr mce = new MethodCallExpr(n.getScope(), "info", newArgs);
+      n.getParentNode().replaceChildNode(n, mce);
+      
+      List<Action> actions = getActions(cu2, cu);
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      ReplaceAction action = (ReplaceAction) actions.get(0);
+      Assert.assertEquals("LOG.info(e)", action.getNewText());
+
+      assertCode(actions, code, "public class A { public void foo() { LOG.info(e); }}");
+   }
 
    @Test
    public void testRemoveNonEmptyMethod() throws Exception {
@@ -175,7 +201,7 @@ public class TestActionsInferred {
       Assert.assertEquals("int i = 1 /*first comment*/".length() + 3, actions.get(0).getEndColumn());
       Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 
-      assertCode(actions, original, "public class A{ static{ \n  \n  i++; }}");
+      assertCode(actions, original, "public class A{ static{ \n  i++; }}");
    }
 
    @Test
@@ -236,7 +262,7 @@ public class TestActionsInferred {
 
       Assert.assertEquals("import java.util.Collection;", ((RemoveAction) actions.get(1)).getText());
 
-      assertCode(actions, code, "package org;\nimport foo.Bar;\n\n\nimport foo.Car;\n" + classCode);
+      assertCode(actions, code, "package org;\nimport foo.Bar;\nimport foo.Car;\n" + classCode);
 
    }
 
@@ -743,7 +769,7 @@ public class TestActionsInferred {
       Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 
       assertCode(actions, code,
-            "public class Bar{\n    public void foo() {\n        \n        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n    }\n}");
+            "public class Bar{\n    public void foo() {\n        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n    }\n}");
    }
 
    @Test
@@ -771,6 +797,26 @@ public class TestActionsInferred {
       visitor.visit((CompilationUnit) cu, ctx);
       List<Action> actions = visitor.getActionsToApply();
       assertCode(actions, code, "public class Foo{\n\tpublic void foo() {\n\t\tif(a && b){\n\t\t\ti++;\n\t\t}\n\t}\n}");
+   }
+   
+   @Test
+   public void testRemoveJavadoc() throws ParseException {
+      String code = "public class B { /**\n* This class is awesome**/\npublic void foo(){} }";
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      md.setJavaDoc(null);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code, "public class B { public void foo(){} }");
    }
 
 }
