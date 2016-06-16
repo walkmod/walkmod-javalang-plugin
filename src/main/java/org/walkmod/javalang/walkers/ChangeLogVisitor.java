@@ -181,6 +181,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       if (parent != null && children != null && !children.isEmpty()) {
 
          Node first = children.get(0);
+         int i = 1;
+         while(first.isNewNode() && i < children.size()){
+            first = children.get(i);
+            i++;
+         }
+         
          if (first.getBeginLine() != parent.getBeginLine()) {
             indentationSize = first.getBeginColumn() - parent.getBeginColumn();
             if (indentationSize < 0) {
@@ -400,14 +406,33 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             }
          }
          int i = 0;
+       
+
          for (T id : nodes1) {
             if (id.isNewNode()) {
-               if(!removedNodes.contains(i)){
+               if (!removedNodes.contains(i)) {
+                  boolean pushed = false;
+
+                  boolean found = false;
+                  int k = i + 1;
+                  while (k < nodes1.size() && !found) {
+                     found = !nodes1.get(k).isNewNode();
+                     if (!found) {
+                        k++;
+                     }
+                  }
+                  if (found) {
+                     T aux = nodes1.get(k);
+                     position.push(new Position(aux.getBeginLine(), aux.getBeginColumn()));
+                     pushed = true;
+                  }
+
                   applyAppend(id);
+                  if (pushed) {
+                     position.pop();
+                  }
                }
-               else{
-                  //applyUpdate(id, nodes2.get(i));
-               }
+
             } else {
                if (nodes2 != null) {
                   boolean found = false;
@@ -430,6 +455,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                   }
                }
             }
+
             i++;
          }
 
@@ -2350,11 +2376,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
          } else {
             List<Statement> stmts = n.getStmts();
-            if(stmts != null && !stmts.isEmpty()){
+            if (stmts != null && !stmts.isEmpty()) {
                Statement first = stmts.get(0);
                position.push(new Position(first.getBeginLine(), first.getBeginColumn()));
-            }
-            else{
+            } else {
                position.push(pos);
             }
          }

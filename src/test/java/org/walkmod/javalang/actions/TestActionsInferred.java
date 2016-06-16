@@ -296,7 +296,7 @@ public class TestActionsInferred {
 
       imports.add(new ImportDeclaration(new NameExpr("org.walkmod.B"), false, false));
       modifiedCu.setImports(imports);
-      modifiedCu.getTypes().get(0).getAnnotations().add(new NormalAnnotationExpr(new NameExpr("Foo"), null));
+      modifiedCu.getTypes().get(0).getAnnotations().add(0, new NormalAnnotationExpr(new NameExpr("Foo"), null));
 
       actions = getActions(originalCu, modifiedCu);
       Assert.assertEquals(2, actions.size());
@@ -622,6 +622,27 @@ public class TestActionsInferred {
 
       assertCode(actions, code, "public class B { private String foo; }");
    }
+   
+   @Test
+   public void testModifyModifers2() throws ParseException {
+      String code = "public class B {\n    public String foo;\n}";
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      FieldDeclaration md = (FieldDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      md.setModifiers(ModifierSet.PRIVATE);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code, "public class B {\n    private String foo;\n}");
+   }
+
 
    @Test
    public void testAddAnnotation() throws ParseException {
