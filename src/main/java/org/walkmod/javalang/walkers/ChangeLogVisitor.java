@@ -42,6 +42,7 @@ import org.walkmod.javalang.ast.PackageDeclaration;
 import org.walkmod.javalang.ast.TypeParameter;
 import org.walkmod.javalang.ast.body.AnnotationDeclaration;
 import org.walkmod.javalang.ast.body.AnnotationMemberDeclaration;
+import org.walkmod.javalang.ast.body.BodyDeclaration;
 import org.walkmod.javalang.ast.body.ClassOrInterfaceDeclaration;
 import org.walkmod.javalang.ast.body.ConstructorDeclaration;
 import org.walkmod.javalang.ast.body.EmptyMemberDeclaration;
@@ -57,6 +58,7 @@ import org.walkmod.javalang.ast.body.Parameter;
 import org.walkmod.javalang.ast.body.TypeDeclaration;
 import org.walkmod.javalang.ast.body.VariableDeclarator;
 import org.walkmod.javalang.ast.body.VariableDeclaratorId;
+import org.walkmod.javalang.ast.expr.AnnotationExpr;
 import org.walkmod.javalang.ast.expr.ArrayAccessExpr;
 import org.walkmod.javalang.ast.expr.ArrayCreationExpr;
 import org.walkmod.javalang.ast.expr.ArrayInitializerExpr;
@@ -182,28 +184,34 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
          Node first = children.get(0);
          int i = 1;
-         while(first.isNewNode() && i < children.size()){
+         while (first.isNewNode() && i < children.size()) {
             first = children.get(i);
             i++;
          }
-         
-         if (first.getBeginLine() != parent.getBeginLine()) {
-            indentationSize = first.getBeginColumn() - parent.getBeginColumn();
-            if (indentationSize < 0) {
-               indentationSize = first.getBeginColumn() - parent.getEndColumn();
+         int aux = 0;
+         if (!first.isNewNode()) {
+            if (first.getBeginLine() != parent.getBeginLine()) {
+               aux = first.getBeginColumn() - parent.getBeginColumn();
+               if (aux < 0) {
+                  aux = first.getBeginColumn() - parent.getEndColumn() - 1;
+               }
+               if (aux < 0) {
+                  aux = aux * (-1);
+               }
+
             }
-            if (indentationSize < 0) {
-               indentationSize = 0;
+            if (aux > 0) {
+               indentationSize = aux;
             }
-         } else {
-            indentationSize = 0;
          }
       }
       return indentationSize;
    }
 
    private void decreaseIndentation() {
-      indentationLevel--;
+      if(indentationLevel > 0) {
+         indentationLevel--;
+      }
    }
 
    public String getReportingPropertiesPath() {
@@ -293,12 +301,24 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
       if (generateActions) {
          RemoveAction action = null;
+
+         int beginLine = oi.getBeginLine();
+         int beginColumn = oi.getBeginColumn();
+
+         if (oi instanceof BodyDeclaration) {
+            JavadocComment jc = ((BodyDeclaration) oi).getJavaDoc();
+            if (jc != null) {
+               beginLine = jc.getBeginLine();
+               beginColumn = jc.getBeginColumn();
+            }
+         }
+
          if (!actionsToApply.isEmpty()) {
 
             Iterator<Action> inverseIt = actionsToApply.descendingIterator();
             boolean isContained = false;
 
-            action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
+            action = new RemoveAction(beginLine, beginColumn, oi.getEndLine(), oi.getEndColumn(), oi);
             Action last = null;
             while (inverseIt.hasNext() && !isContained) {
                last = inverseIt.next();
@@ -324,11 +344,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             }
 
          } else {
-            action = new RemoveAction(oi.getBeginLine(), oi.getBeginColumn(), oi.getEndLine(), oi.getEndColumn(), oi);
+            action = new RemoveAction(beginLine, beginColumn, oi.getEndLine(), oi.getEndColumn(), oi);
             actionsToApply.add(action);
 
          }
       }
+
       increaseDeletedNodes(oi.getClass());
 
    }
@@ -338,21 +359,53 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       AppendAction action = null;
       if (generateActions) {
          Position pos = position.peek();
-         action = new AppendAction(pos.getLine(), pos.getColumn(), id, indentationLevel, indentationSize);
+         int extraLines = 0;
+         if (((id instanceof AnnotationExpr) || !(id instanceof Expression)) && pos.getLine() > 1) {
+            extraLines++;
+         }
+         if (id instanceof BodyDeclaration) {
+            extraLines++;
+         }
+         action = new AppendAction(pos.getLine(), pos.getColumn(), id, indentationLevel, indentationSize, extraLines);
          actionsToApply.add(action);
       }
       increaseAddedNodes(id.getClass());
    }
 
+   private boolean requiresCurrentIndentation(Node node) {
+      if (node instanceof ObjectCreationExpr) {
+         return ((ObjectCreationExpr) node).getAnonymousClassBody() != null;
+      }
+      return (node instanceof BlockStmt);
+   }
+
    private void applyUpdate(Node newNode, Node oldNode) {
       if (generateActions) {
-         Action action = null;
+         Action action;
+         int beginLine = oldNode.getBeginLine();
+         int beginColumn = oldNode.getBeginColumn();
+
+         if (oldNode instanceof BodyDeclaration) {
+            JavadocComment jc = ((BodyDeclaration) oldNode).getJavaDoc();
+            if (jc != null) {
+               beginLine = jc.getBeginLine();
+               beginColumn = jc.getBeginColumn();
+            }
+         }
+
+         int indent = indentationLevel;
+
+         if (!requiresCurrentIndentation(newNode)) {
+            indent--;
+         } else if (!requiresCurrentIndentation(oldNode)) {
+            indent++;
+         }
+
          if (!actionsToApply.isEmpty()) {
 
             Iterator<Action> inverseIt = actionsToApply.descendingIterator();
             boolean finish = false;
-            action = new RemoveAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode.getEndLine(),
-                  oldNode.getEndColumn(), oldNode);
+            action = new RemoveAction(beginLine, beginColumn, oldNode.getEndLine(), oldNode.getEndColumn(), oldNode);
             boolean isComment = newNode instanceof Comment;
 
             boolean isInternalComment = false;
@@ -370,14 +423,12 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                }
             }
             if (!isInternalComment) {
-               action = new ReplaceAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode, newNode,
-                     indentationLevel, indentationSize, comments);
+               action = new ReplaceAction(beginLine, beginColumn, oldNode, newNode, indent, indentationSize, comments);
                actionsToApply.add(action);
             }
 
          } else {
-            action = new ReplaceAction(oldNode.getBeginLine(), oldNode.getBeginColumn(), oldNode, newNode,
-                  indentationLevel, indentationSize, comments);
+            action = new ReplaceAction(beginLine, beginColumn, oldNode, newNode, indent, indentationSize, comments);
             actionsToApply.add(action);
          }
       }
@@ -394,9 +445,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                T id = null;
                while (it.hasNext() && !found) {
                   id = it.next();
-                  found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi.getBeginColumn());// ((Node)
-                  // id).isInEqualLocation((Node)
-                  // oi);
+                  found = (id.getBeginLine() == oi.getBeginLine() && id.getBeginColumn() == oi.getBeginColumn());
                }
                if (!found) {
                   applyRemove(oi);
@@ -406,7 +455,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             }
          }
          int i = 0;
-       
 
          for (T id : nodes1) {
             if (id.isNewNode()) {
@@ -431,6 +479,13 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                   if (pushed) {
                      position.pop();
                   }
+               } else {
+                  int k = i;
+                  while (removedNodes.contains(k)) {
+                     k++;
+                  }
+                  applyUpdate(id, nodes2.get(k - 1));
+                  i = k - 1;
                }
 
             } else {
@@ -657,7 +712,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             applyUpdate(n, (Node) o);
          }
          increaseIndentation();
-         inferIndentationSize(n, n.getMembers());
+         inferIndentationSize(aux, aux.getMembers());
          inferASTChanges(n.getMembers(), aux.getMembers());
          decreaseIndentation();
          if (!isUpdated()) {
@@ -915,7 +970,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          }
 
          increaseIndentation();
-         inferIndentationSize(n, n.getMembers());
+         inferIndentationSize(aux, aux.getMembers());
          List<EnumConstantDeclaration> theseEntries = n.getEntries();
          List<EnumConstantDeclaration> otherEntries = aux.getEntries();
          inferASTChanges(theseEntries, otherEntries);
@@ -962,7 +1017,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          if (!equals) {
             applyUpdate(n, (Node) o);
          }
-         inferIndentationSize(n, n.getMembers());
+         inferIndentationSize(aux, aux.getMembers());
          increaseIndentation();
          inferASTChanges(n.getMembers(), aux.getMembers());
          decreaseIndentation();
@@ -1043,7 +1098,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             applyUpdate(n, (Node) o);
          }
          increaseIndentation();
-         inferIndentationSize(n, n.getMembers());
+         inferIndentationSize(aux, aux.getMembers());
          inferASTChanges(n.getMembers(), aux.getMembers());
          decreaseIndentation();
          if (!isUpdated()) {
@@ -1956,7 +2011,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          position.pop();
          position.push(pos);
          increaseIndentation();
-         inferIndentationSize(n, n.getAnonymousClassBody());
+         inferIndentationSize(aux, aux.getAnonymousClassBody());
          inferASTChanges(n.getAnonymousClassBody(), aux.getAnonymousClassBody());
          decreaseIndentation();
          if (!isUpdated()) {
@@ -2270,7 +2325,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          boolean backup = isUpdated();
          setIsUpdated(false);
          increaseIndentation();
-         inferIndentationSize(n, n.getStmts());
+         inferIndentationSize(aux, aux.getStmts());
          inferASTChanges(n.getStmts(), aux.getStmts());
          decreaseIndentation();
          if (!isUpdated()) {
@@ -2348,8 +2403,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          setIsUpdated(false);
          inferASTChanges(n.getSelector(), aux.getSelector());
          increaseIndentation();
+         inferIndentationSize(aux, aux.getEntries());
+
          inferASTChanges(n.getEntries(), aux.getEntries());
          decreaseIndentation();
+
          if (!isUpdated()) {
             increaseUnmodifiedNodes(SwitchStmt.class);
          } else {
@@ -2372,18 +2430,22 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          setIsUpdated(false);
          inferASTChanges(n.getLabel(), aux.getLabel());
          Position pos = position.pop();
-         if (n.getLabel() != null) {
-            position.push(new Position(n.getLabel().getEndLine(), n.getLabel().getEndColumn()));
+         Position newPos = null;
+
+         List<Statement> stmts = aux.getStmts();
+         if (stmts != null && !stmts.isEmpty()) {
+            Statement first = stmts.get(0);
+            newPos = new Position(first.getBeginLine(), first.getBeginColumn());
+         } else if (aux.getLabel() != null) {
+            newPos = new Position(aux.getLabel().getEndLine(), aux.getLabel().getEndColumn());
          } else {
-            List<Statement> stmts = n.getStmts();
-            if (stmts != null && !stmts.isEmpty()) {
-               Statement first = stmts.get(0);
-               position.push(new Position(first.getBeginLine(), first.getBeginColumn()));
-            } else {
-               position.push(pos);
-            }
+            position.push(pos);
          }
 
+         if (newPos != null) {
+            position.push(newPos);
+         }
+         inferIndentationSize(aux, aux.getStmts());
          inferASTChanges(n.getStmts(), aux.getStmts());
          position.pop();
          position.push(pos);
@@ -2426,7 +2488,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          if (!isUpdated()) {
             increaseUnmodifiedNodes(ReturnStmt.class);
          } else {
-            applyUpdate(n, aux, n.getExpr(), aux.getExpr());
+            if (aux.getExpr() instanceof EnclosedExpr) {
+               //without applyUpdate return(true) => returntrue
+               applyUpdate(n, aux, n.getExpr(), aux.getExpr());
+            }
             increaseUpdatedNodes(ReturnStmt.class);
          }
          setIsUpdated(backup || isUpdated());

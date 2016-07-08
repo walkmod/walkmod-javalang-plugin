@@ -11,6 +11,7 @@ import org.walkmod.javalang.ast.Comment;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.ImportDeclaration;
 import org.walkmod.javalang.ast.TypeParameter;
+import org.walkmod.javalang.ast.body.BodyDeclaration;
 import org.walkmod.javalang.ast.body.ClassOrInterfaceDeclaration;
 import org.walkmod.javalang.ast.body.EnumDeclaration;
 import org.walkmod.javalang.ast.body.FieldDeclaration;
@@ -23,16 +24,22 @@ import org.walkmod.javalang.ast.body.VariableDeclarator;
 import org.walkmod.javalang.ast.body.VariableDeclaratorId;
 import org.walkmod.javalang.ast.expr.AnnotationExpr;
 import org.walkmod.javalang.ast.expr.BinaryExpr;
+import org.walkmod.javalang.ast.expr.EnclosedExpr;
 import org.walkmod.javalang.ast.expr.Expression;
 import org.walkmod.javalang.ast.expr.IntegerLiteralExpr;
 import org.walkmod.javalang.ast.expr.MarkerAnnotationExpr;
 import org.walkmod.javalang.ast.expr.MethodCallExpr;
 import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.ast.expr.NormalAnnotationExpr;
+import org.walkmod.javalang.ast.expr.ObjectCreationExpr;
 import org.walkmod.javalang.ast.stmt.BlockStmt;
+import org.walkmod.javalang.ast.stmt.BreakStmt;
 import org.walkmod.javalang.ast.stmt.ExpressionStmt;
 import org.walkmod.javalang.ast.stmt.IfStmt;
+import org.walkmod.javalang.ast.stmt.ReturnStmt;
 import org.walkmod.javalang.ast.stmt.Statement;
+import org.walkmod.javalang.ast.stmt.SwitchEntryStmt;
+import org.walkmod.javalang.ast.stmt.SwitchStmt;
 import org.walkmod.javalang.ast.type.ClassOrInterfaceType;
 import org.walkmod.javalang.ast.type.PrimitiveType;
 import org.walkmod.javalang.ast.type.PrimitiveType.Primitive;
@@ -107,9 +114,9 @@ public class TestActionsInferred {
       assertCode(actions, original, "public class A { private String name; }");
 
    }
-   
+
    @Test
-   public void testReplaceArgument() throws Exception{
+   public void testReplaceArgument() throws Exception {
       String code = "public class A { public void foo() { LOG.info(foo()); }}";
       CompilationUnit cu = parser.parse(code, false);
       CompilationUnit cu2 = parser.parse(code, false);
@@ -118,12 +125,12 @@ public class TestActionsInferred {
       List<Statement> stmts = md.getBody().getStmts();
       ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
       MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
-      List<Expression> newArgs = new LinkedList<Expression>();  
+      List<Expression> newArgs = new LinkedList<Expression>();
       newArgs.add(new NameExpr("e"));
-      
+
       MethodCallExpr mce = new MethodCallExpr(n.getScope(), "info", newArgs);
       n.getParentNode().replaceChildNode(n, mce);
-      
+
       List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
@@ -622,7 +629,7 @@ public class TestActionsInferred {
 
       assertCode(actions, code, "public class B { private String foo; }");
    }
-   
+
    @Test
    public void testModifyModifers2() throws ParseException {
       String code = "public class B {\n    public String foo;\n}";
@@ -642,7 +649,6 @@ public class TestActionsInferred {
 
       assertCode(actions, code, "public class B {\n    private String foo;\n}");
    }
-
 
    @Test
    public void testAddAnnotation() throws ParseException {
@@ -683,6 +689,58 @@ public class TestActionsInferred {
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B {\n  @Override\n  public void foo(){\n  }\n }");
+
+   }
+
+   @Test
+   public void testAddAnnotation2() throws ParseException {
+      String code = "public class B {\n\t public void foo(){\t\teo();\t\tbar();\n} }";
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+
+      List<AnnotationExpr> annotations = new LinkedList<AnnotationExpr>();
+      annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
+      md.setAnnotations(annotations);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code, "public class B {\n\t @Override\n\t public void foo(){\t\teo();\t\tbar();\n} }");
+   }
+
+   @Test
+   public void testAddAnnotationInInnerClass() throws ParseException {
+      String code = "public class Foo {\n\tpublic void aux(){\n\t\t new X(){\n\t\t\tvoid hello(){\n\t\t\t\ty();\n\t\t\t}\n\t\t};\n\t}\n}";
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      ExpressionStmt stmt = (ExpressionStmt) stmts.get(0);
+      ObjectCreationExpr oce = (ObjectCreationExpr) stmt.getExpression();
+
+      List<BodyDeclaration> body = oce.getAnonymousClassBody();
+
+      MethodDeclaration md2 = (MethodDeclaration) body.get(0);
+      List<AnnotationExpr> annotations = new LinkedList<AnnotationExpr>();
+      annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
+      md2.setAnnotations(annotations);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code,
+            "public class Foo {\n\tpublic void aux(){\n\t\t new X(){\n\t\t\t@Override\n\t\t\tvoid hello(){\n\t\t\t\ty();\n\t\t\t}\n\t\t};\n\t}\n}");
 
    }
 
@@ -808,10 +866,10 @@ public class TestActionsInferred {
 
       Expression condition = thenStmt.getCondition().clone();
       BinaryExpr be = new BinaryExpr(ifStmt.getCondition().clone(), condition, BinaryExpr.Operator.and);
-      ifStmt.setCondition(be);  
+      ifStmt.setCondition(be);
       ifStmt.setThenStmt(thenStmt.getThenStmt().clone());
       thenStmt.remove();
-      
+
       ChangeLogVisitor visitor = new ChangeLogVisitor();
       VisitorContext ctx = new VisitorContext();
       ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
@@ -819,7 +877,7 @@ public class TestActionsInferred {
       List<Action> actions = visitor.getActionsToApply();
       assertCode(actions, code, "public class Foo{\n\tpublic void foo() {\n\t\tif(a && b){\n\t\t\ti++;\n\t\t}\n\t}\n}");
    }
-   
+
    @Test
    public void testRemoveJavadoc() throws ParseException {
       String code = "public class B { /**\n* This class is awesome**/\npublic void foo(){} }";
@@ -840,4 +898,266 @@ public class TestActionsInferred {
       assertCode(actions, code, "public class B { public void foo(){} }");
    }
 
+   @Test
+   public void testAddBlockStmtInSwitch() throws ParseException {
+      String code = "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tcase 1:\n\t\t\t\tSystem.out.println(val);\n\t\t}\n\t}\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+
+      SwitchStmt stmt = (SwitchStmt) md.getBody().getStmts().get(0);
+
+      List<SwitchEntryStmt> entries = stmt.getEntries();
+      List<Statement> stmts = new LinkedList<Statement>();
+
+      stmts.add(new BlockStmt(entries.get(0).getStmts()));
+      entries.get(0).setStmts(stmts);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code,
+            "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tcase 1:\n\t\t\t\t{\n\t\t\t\t\tSystem.out.println(val);\n\t\t\t\t}\n\t\t}\n\t}\n}");
+   }
+
+   @Test
+   public void testAddBlockStmtInSwitch2() throws ParseException {
+      String code = "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tcase 1:\n\t\t\t\tSystem.out.println(val);\n\t\t\t\tSystem.out.println(val);\n\t\t\t\tbreak;\n\t\t}\n\t}\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+
+      SwitchStmt stmt = (SwitchStmt) md.getBody().getStmts().get(0);
+
+      List<SwitchEntryStmt> entries = stmt.getEntries();
+      List<Statement> stmts = new LinkedList<Statement>();
+
+      stmts.add(new BlockStmt(entries.get(0).getStmts()));
+      entries.get(0).setStmts(stmts);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(3, actions.size());
+
+      assertCode(actions, code,
+            "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tcase 1:\n\t\t\t\t{\n\t\t\t\t\tSystem.out.println(val);\n\t\t\t\t\tSystem.out.println(val);\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t}\n\t}\n}");
+   }
+
+   @Test
+   public void testAddBlockStmtInDefaultSwitch() throws ParseException {
+      String code = "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tdefault:\n\t\t\t\tSystem.out.println(val);\n\t\t}\n\t}\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+
+      SwitchStmt stmt = (SwitchStmt) md.getBody().getStmts().get(0);
+
+      List<SwitchEntryStmt> entries = stmt.getEntries();
+      List<Statement> stmts = new LinkedList<Statement>();
+
+      stmts.add(new BlockStmt(entries.get(0).getStmts()));
+      entries.get(0).setStmts(stmts);
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code,
+            "public class B {\n\tpublic void foo(int val){\n\t\tswitch(val){\n\t\t\tdefault:\n\t\t\t\t{\n\t\t\t\t\tSystem.out.println(val);\n\t\t\t\t}\n\t\t}\n\t}\n}");
+   }
+
+   @Test
+   public void testRemoveParenthesesReturn() throws ParseException {
+      String code = "public class B{ public boolean bar() { return(true); }}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+
+      ReturnStmt stmt = (ReturnStmt) md.getBody().getStmts().get(0);
+
+      EnclosedExpr expr = (EnclosedExpr) stmt.getExpr();
+
+      stmt.replaceChildNode(expr, expr.getInner());
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+
+      assertCode(actions, code, "public class B{ public boolean bar() { return true; }}");
+
+   }
+
+   @Test
+   public void testSwitchBlockWithMultipleIndentationChars() throws ParseException {
+      String code = "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\t\tcase 1:\n\t\t\t\tbreak;\n\t\t}\n\t}\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(1);
+      BlockStmt blockStmt = md.getBody();
+      SwitchStmt switchStmt = (SwitchStmt) blockStmt.getStmts().get(0);
+      SwitchEntryStmt entry = (SwitchEntryStmt) switchStmt.getEntries().get(0);
+
+      entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      assertCode(actions, code,
+            "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\t\tcase 1:\n\t\t\t\t{\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t}\n\t}\n}");
+
+   }
+
+   @Test
+   public void testSwitchBlockWithNonIndentionFragments() throws ParseException {
+      String code = "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\tcase 1:\n\t\t\tbreak;\n\t\t}\n\t}\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(1);
+      BlockStmt blockStmt = md.getBody();
+      SwitchStmt switchStmt = (SwitchStmt) blockStmt.getStmts().get(0);
+      SwitchEntryStmt entry = (SwitchEntryStmt) switchStmt.getEntries().get(0);
+
+      entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      assertCode(actions, code,
+            "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\tcase 1:\n\t\t\t{\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t}\n}");
+
+   }
+
+   @Test
+   public void testLastIndentationCharIsForTheIndentationSize() throws ParseException {
+      String code = "public class B{\n    @SuppressWarnings(\"PMD.MissingBreakInSwitch\")\n    @Override\n    public AxisIterator iterateAxis(byte axisNumber) {\n\tswitch (axisNumber) {\n\tcase Axis.ANCESTOR:\n\t    return null;\n\t}\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    }\n}";
+
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      BlockStmt blockStmt = md.getBody();
+      SwitchStmt switchStmt = (SwitchStmt) blockStmt.getStmts().get(0);
+      SwitchEntryStmt entry = (SwitchEntryStmt) switchStmt.getEntries().get(0);
+
+      entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
+
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      
+      assertCode(actions, code,
+            "public class B{\n    @SuppressWarnings(\"PMD.MissingBreakInSwitch\")\n    @Override\n    public AxisIterator iterateAxis(byte axisNumber) {\n\tswitch (axisNumber) {\n\tcase Axis.ANCESTOR:\n\t    {\n\t        return null;\n\t    }\n\t}\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    }\n}");
+
+   }
+   
+   @Test
+   public void testAddDefaultSwitchCase() throws ParseException{
+      
+      String code = "public class B{\n    public void foo(int x) {\n        switch(x){\n            case 1:\n                break;\n        }\n    }\n}";
+   
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      BlockStmt blockStmt = md.getBody();
+      SwitchStmt switchStmt = (SwitchStmt) blockStmt.getStmts().get(0);
+      
+      SwitchEntryStmt entry = new SwitchEntryStmt();
+      List<Statement> stmts = new LinkedList<Statement>();
+      stmts.add(new BreakStmt());
+      
+      entry.setStmts(stmts);
+      switchStmt.getEntries().add(entry);
+      
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      
+   
+      assertCode(actions, code,
+            "public class B{\n    public void foo(int x) {\n        switch(x){\n            case 1:\n                break;\n            default:\n                break;\n        }\n    }\n}");
+      
+
+   }
+
+   @Test
+   public void testAddDefaultSwitchCaseWithWrongIndent() throws ParseException{
+      
+      String code = "public class B{\n    public void foo(int x) {\n        switch(x){\n        case 1:\n            break;\n        }\n    }\n}";
+   
+      DefaultJavaParser parser = new DefaultJavaParser();
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      BlockStmt blockStmt = md.getBody();
+      SwitchStmt switchStmt = (SwitchStmt) blockStmt.getStmts().get(0);
+      
+      SwitchEntryStmt entry = new SwitchEntryStmt();
+      List<Statement> stmts = new LinkedList<Statement>();
+      stmts.add(new BreakStmt());
+      
+      entry.setStmts(stmts);
+      List<SwitchEntryStmt> entries = switchStmt.getEntries();
+      entries.add(entry);
+      switchStmt.setEntries(entries);
+      
+      ChangeLogVisitor visitor = new ChangeLogVisitor();
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
+      visitor.visit((CompilationUnit) cu, ctx);
+      List<Action> actions = visitor.getActionsToApply();
+      Assert.assertEquals(1, actions.size());
+      
+   
+      assertCode(actions, code,
+            "public class B{\n    public void foo(int x) {\n        switch(x){\n        case 1:\n            break;\n            default:\n                break;\n        }\n    }\n}");
+      
+
+   }
 }
