@@ -91,7 +91,7 @@ public class DefaultJavaWalkerTest {
          walker.accept(fooClass);
       } catch (Exception e) {
          String message = e.getMessage();
-         Assert.assertTrue(message.contains("Error processing the analysis of [" + fooClass.getCanonicalPath() + "]"));
+         Assert.assertTrue(message.contains("Error processing the analysis of [Foo]"));
          
       } finally {
          fooClass.delete();

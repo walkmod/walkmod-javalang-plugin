@@ -27,13 +27,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.exceptions.WalkModException;
+import org.walkmod.javalang.actions.Action;
 import org.walkmod.javalang.ast.CompilationUnit;
-import org.walkmod.javalang.ast.body.ModifierSet;
-import org.walkmod.javalang.ast.body.TypeDeclaration;
-import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.compiler.symbols.SymbolVisitorAdapter;
-import org.walkmod.javalang.util.FileUtils;
 import org.walkmod.modelchecker.Constraint;
 import org.walkmod.modelchecker.ConstraintProvider;
 import org.walkmod.walkers.AbstractWalker;
@@ -159,6 +156,58 @@ public class DefaultJavaWalker extends AbstractWalker {
       }
       super.execute();
    }
+   
+   protected void performSemanticAnalysis(CompilationUnit cu){
+      if (requiresSemanticAnalysis == null) {
+         List<Object> visitors = getVisitors();
+         Iterator<Object> it = visitors.iterator();
+         while (it.hasNext() && requiresSemanticAnalysis == null) {
+            Object current = it.next();
+            if (current.getClass().isAnnotationPresent(RequiresSemanticAnalysis.class)) {
+               requiresSemanticAnalysis = true;
+            }
+         }
+         if (requiresSemanticAnalysis == null) {
+            requiresSemanticAnalysis = false;
+         }
+      }
+      if(requiresSemanticAnalysis){
+
+         ClassLoader cl = getClassLoader();
+         if (cl != null) {
+            SymbolVisitorAdapter<HashMap<String, Object>> visitor = new SymbolVisitorAdapter<HashMap<String, Object>>();
+            visitor.setClassLoader(cl);
+            try {
+               visitor.visit(cu, new HashMap<String, Object>());
+            } catch (Throwable e) {
+               String message = "Error processing the analysis of [" + cu.getQualifiedName() + "]";
+               WalkModException e1 = new WalkModException(message, e);
+               e1.setStackTrace(e.getStackTrace());
+               if (!ignoreErrors) {
+                  throw e1;
+               } else {
+                  log.error(message, e1);
+                  return;
+               }
+            }
+         } else {
+            throw new WalkModException(
+                  "There is no available project classpath to apply " + "a semantic analysis");
+         }
+      }
+      
+   }
+   
+   protected void addConstraints(CompilationUnit cu){
+      if (constraintProv != null) {
+         List<Constraint> constraints = new LinkedList<Constraint>();
+         for (ConstraintProvider cp : constraintProv) {
+            Constraint<?> c = cp.getConstraint(cu);
+            constraints.add(c);
+         }
+         cu.setConstraints(constraints);
+      }
+   }
 
    public void visit(File file) throws Exception {
       if (file.getName().endsWith(".java")) {
@@ -175,51 +224,9 @@ public class DefaultJavaWalker extends AbstractWalker {
             }
          }
          if (cu != null) {
-            if (requiresSemanticAnalysis == null) {
-               List<Object> visitors = getVisitors();
-               Iterator<Object> it = visitors.iterator();
-               while (it.hasNext() && requiresSemanticAnalysis == null) {
-                  Object current = it.next();
-                  if (current.getClass().isAnnotationPresent(RequiresSemanticAnalysis.class)) {
-                     requiresSemanticAnalysis = true;
-                  }
-               }
-               if (requiresSemanticAnalysis == null) {
-                  requiresSemanticAnalysis = false;
-               }
-            }
-            ClassLoader cl = getClassLoader();
-
-            if (requiresSemanticAnalysis) {
-               if (cl != null) {
-                  SymbolVisitorAdapter<HashMap<String, Object>> visitor = new SymbolVisitorAdapter<HashMap<String, Object>>();
-                  visitor.setClassLoader(cl);
-                  try {
-                     visitor.visit(cu, new HashMap<String, Object>());
-                  } catch (Throwable e) {
-                     String message = "Error processing the analysis of [" + file.getCanonicalPath() + "]";
-                     WalkModException e1 = new WalkModException(message, e);
-                     e1.setStackTrace(e.getStackTrace());
-                     if (!ignoreErrors) {
-                        throw e1;
-                     } else {
-                        log.error(message, e1);
-                        return;
-                     }
-                  }
-               } else {
-                  throw new WalkModException(
-                        "There is no available project classpath to apply " + "a semantic analysis");
-               }
-            }
-            if (constraintProv != null) {
-               List<Constraint> constraints = new LinkedList<Constraint>();
-               for (ConstraintProvider cp : constraintProv) {
-                  Constraint<?> c = cp.getConstraint(cu);
-                  constraints.add(c);
-               }
-               cu.setConstraints(constraints);
-            }
+            performSemanticAnalysis(cu);
+            addConstraints(cu);
+            
             log.debug(file.getPath() + " [ visiting ]");
             visit(cu);
             log.debug(file.getPath() + " [ visited ]");
@@ -249,129 +256,145 @@ public class DefaultJavaWalker extends AbstractWalker {
       }
    }
 
-   protected void write(Object element) throws Exception {
+   protected CompilationUnit recoverOriginalCU(VisitorContext vc) {
+      try {
+         return parser.parse(originalFile, encoding);
+      } catch (Exception e) {
+         throw new WalkModException("Exception writing results of " + originalFile.getPath(), e);
+      }
+   }
+
+   protected VisitorContext buildWriterContext(VisitorContext oldVC) throws Exception {
+      VisitorContext vc = new VisitorContext(getChainConfig());
+      vc.put(ORIGINAL_FILE_KEY, originalFile);
+      vc.put("onlyWriteChanges", onlyWriteChanges);
+      vc.put("reportChanges", reportChanges);
+      return vc;
+   }
+
+   public boolean analyzeChanges(CompilationUnit original, CompilationUnit modified, VisitorContext vc)
+         throws Exception {
+      ChangeLogVisitor clv = new ChangeLogVisitor();
+      clv.setGenerateActions(onlyIncrementalWrites);
+      VisitorContext ctx = new VisitorContext();
+      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, original);
+      clv.visit((CompilationUnit) modified, ctx);
+      boolean isUpdated = clv.isUpdated();
+      vc.put("isUpdated", isUpdated);
+      if (isUpdated) {
+         if (onlyIncrementalWrites) {
+            storeChanges(clv.getActionsToApply(), vc);
+         }
+
+         Map<String, Integer> auxAdded = clv.getAddedNodes();
+         Map<String, Integer> auxUpdated = clv.getUpdatedNodes();
+         Map<String, Integer> auxDeleted = clv.getDeletedNodes();
+         Map<String, Integer> auxUnmodified = clv.getUnmodifiedNodes();
+         if (added.isEmpty()) {
+            added = auxAdded;
+         } else {
+            mapSum(added, auxAdded);
+         }
+         if (updated.isEmpty()) {
+            updated = auxUpdated;
+         } else {
+            mapSum(updated, auxUpdated);
+         }
+         if (deleted.isEmpty()) {
+            deleted = auxDeleted;
+         } else {
+            mapSum(deleted, auxDeleted);
+         }
+         if (unmodified.isEmpty()) {
+            unmodified = auxUnmodified;
+         } else {
+            mapSum(unmodified, auxUnmodified);
+         }
+         ChangeLogPrinter printer = new ChangeLogPrinter(auxAdded, auxUpdated, auxDeleted, auxUnmodified);
+         printer.print();
+      }
+
+      return isUpdated;
+   }
+
+   protected void storeChanges(List<Action> actions, VisitorContext vc) throws Exception {
+      vc.put(ACTIONS_TO_APPY_KEY, actions);
+   }
+
+   @Override
+   protected void write(Object element, VisitorContext oldVC) throws Exception {
+
       if (element != null && element instanceof CompilationUnit) {
-         VisitorContext vc = new VisitorContext(getChainConfig());
-         vc.put(ORIGINAL_FILE_KEY, originalFile);
-         vc.put("onlyWriteChanges", onlyWriteChanges);
-         vc.put("reportChanges", reportChanges);
+
+         VisitorContext vc = buildWriterContext(oldVC);
+
          if (reportChanges) {
             CompilationUnit returningCU = (CompilationUnit) element;
-            CompilationUnit cu = null;
-            try {
-               cu = parser.parse(originalFile, encoding);
-            } catch (Exception e) {
-               throw new WalkModException("Exception writing results of " + originalFile.getPath(), e);
-            }
+            CompilationUnit cu = recoverOriginalCU(vc);
+
             if (cu != null) {
                // if the returning CU corresponds to the same File, then
                // check changes.
-               boolean samePackage = cu.getPackage() == null && returningCU.getPackage() == null;
-               samePackage = samePackage || (cu.getPackage() != null && returningCU.getPackage() != null
-                     && cu.getPackage().equals(returningCU.getPackage()));
-               boolean sameType = cu.getTypes() == null && returningCU.getTypes() == null;
-               sameType = sameType || (cu.getTypes() != null && returningCU.getTypes() != null
-                     && cu.getTypes().get(0).getName().equals(returningCU.getTypes().get(0).getName()));
+
                boolean resolveWrite = false;
-               if (samePackage && sameType) {
-                  ChangeLogVisitor clv = new ChangeLogVisitor();
-                  clv.setGenerateActions(onlyIncrementalWrites);
-                  VisitorContext ctx = new VisitorContext();
-                  ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
-                  clv.visit((CompilationUnit) element, ctx);
-                  boolean isUpdated = clv.isUpdated();
-                  if (onlyIncrementalWrites && isUpdated) {
-                     vc.put(ACTIONS_TO_APPY_KEY, clv.getActionsToApply());
-                  }
-                  vc.put("isUpdated", isUpdated);
+               if (cu.hasEqualFileName(returningCU)) {
+
+                  boolean isUpdated = analyzeChanges(cu, returningCU, vc);
+
                   if (isUpdated) {
 
                      log.debug(originalFile.getPath() + " [with changes]");
-                     String name = "";
-                     if (cu.getPackage() != null) {
-                        name = cu.getPackage().getName().toString();
-                     }
-                     if (cu.getTypes() != null && !cu.getTypes().isEmpty()) {
-                        if (cu.getPackage() != null) {
-                           name = name + ".";
-                        }
-                        name = name + cu.getTypes().get(0).getName();
-                     }
-                     Map<String, Integer> auxAdded = clv.getAddedNodes();
-                     Map<String, Integer> auxUpdated = clv.getUpdatedNodes();
-                     Map<String, Integer> auxDeleted = clv.getDeletedNodes();
-                     Map<String, Integer> auxUnmodified = clv.getUnmodifiedNodes();
-                     if (added.isEmpty()) {
-                        added = auxAdded;
-                     } else {
-                        mapSum(added, auxAdded);
-                     }
-                     if (updated.isEmpty()) {
-                        updated = auxUpdated;
-                     } else {
-                        mapSum(updated, auxUpdated);
-                     }
-                     if (deleted.isEmpty()) {
-                        deleted = auxDeleted;
-                     } else {
-                        mapSum(deleted, auxDeleted);
-                     }
-                     if (unmodified.isEmpty()) {
-                        unmodified = auxUnmodified;
-                     } else {
-                        mapSum(unmodified, auxUnmodified);
-                     }
+                     String name = cu.getQualifiedName();
                      log.info(">> " + name);
-                     ChangeLogPrinter printer = new ChangeLogPrinter(auxAdded, auxUpdated, auxDeleted, auxUnmodified);
-                     printer.print();
-                     File outputDir = new File(getChainConfig().getWriterConfig().getPath());
 
-                     File inputDir = new File(getChainConfig().getReaderConfig().getPath());
+                     File outputDir = new File(getWriterPath());
+                     File inputDir = new File(getReaderPath());
+                     
                      if (!outputDir.equals(inputDir)) {
                         vc.remove(ORIGINAL_FILE_KEY);
                      }
-                     write(element, vc);
+                     super.write(element, vc);
                      log.debug(originalFile.getPath() + " [ written ]");
                   } else {
                      log.debug(originalFile.getPath() + " [ without changes ] ");
+                     //may be we want to force writes
                      resolveWrite = true;
                   }
                } else {
+                  //we need to write in a different directory
                   resolveWrite = true;
                }
                if (resolveWrite) {
-                  String name = null;
+
                   if (returningCU.getTypes() != null) {
-                     name = returningCU.getTypes().get(0).getName();
-                     if (returningCU.getPackage() != null) {
-                        String aux = returningCU.getPackage().getName().toString();
-                        name = aux + "." + name;
-                     }
-                     if (name != null) {
-                        File outputDir = FileUtils.getSourceFile(new File(getChainConfig().getWriterConfig().getPath()),
-                              returningCU.getPackage(), returningCU.getTypes().get(0)).getAbsoluteFile();
+                     //it is not a package-info.java
 
-                        log.debug(outputDir.getAbsolutePath() + " [ output file ]");
+                     File outputDir = new File(getWriterPath(), returningCU.getFileName()).getAbsoluteFile();
 
-                        if (!outputDir.exists()) {
-                           log.info("++ " + name);
-                           vc.remove(ORIGINAL_FILE_KEY);
-                           write(element, vc);
-                           log.debug(outputDir.getPath() + " [ created ]");
-                           log.debug(outputDir.getPath() + " [ written ]");
+                     log.debug(outputDir.getAbsolutePath() + " [ output file ]");
+
+                     if (!outputDir.exists()) {
+                        //we are writing a new file
+                        log.info("++ " + returningCU.getQualifiedName());
+                        vc.remove(ORIGINAL_FILE_KEY);
+                        super.write(element, vc);
+                        log.debug(outputDir.getPath() + " [ created ]");
+                        log.debug(outputDir.getPath() + " [ written ]");
+                     } else {
+                        if (!outputDir.equals(originalFile)) {
+                           //we are rewriting an existing source file in the output directory
+                           vc.put(ORIGINAL_FILE_KEY, outputDir);
+                           super.write(element, vc);
+                           log.debug(outputDir.getPath() + " [ overwritten ]");
+                        } else if (!onlyWriteChanges) {
+                           //the user forces writes
+                           vc.put(ORIGINAL_FILE_KEY, outputDir);
+                           super.write(element, vc);
+                           log.debug(outputDir.getPath() + " [ overwritten ]");
                         } else {
-                           if (!outputDir.equals(originalFile)) {
-                              vc.put(ORIGINAL_FILE_KEY, outputDir);
-                              write(element, vc);
-                              log.debug(outputDir.getPath() + " [ overwritten ]");
-                           } else if (!onlyWriteChanges) {
-                              vc.put(ORIGINAL_FILE_KEY, outputDir);
-                              write(element, vc);
-                              log.debug(outputDir.getPath() + " [ overwritten ]");
-                           } else {
-                              log.debug(originalFile.getPath() + " [not written] ");
-                           }
+                           log.debug(originalFile.getPath() + " [not written] ");
                         }
+
                      }
                   }
                }
@@ -379,9 +402,14 @@ public class DefaultJavaWalker extends AbstractWalker {
          } else {
             log.info(">> " + originalFile.getPath());
             vc.remove(ORIGINAL_FILE_KEY);
-            write(element, vc);
+            super.write(element, vc);
          }
       }
+   }
+
+   @Override
+   protected void write(Object element) throws Exception {
+      write(element, null);
    }
 
    @Override
@@ -406,8 +434,7 @@ public class DefaultJavaWalker extends AbstractWalker {
          Throwable cause = e.getCause();
          if (cause != null) {
             e1.setStackTrace(e.getCause().getStackTrace());
-         }
-         else{
+         } else {
             e1.setStackTrace(e.getStackTrace());
          }
          if (!ignoreErrors) {
@@ -464,19 +491,21 @@ public class DefaultJavaWalker extends AbstractWalker {
       this.encoding = encoding;
    }
 
+   private String getWriterPath() {
+      return getChainConfig().getWriterConfig().getPath();
+   }
+
+   private String getReaderPath() {
+      return getChainConfig().getReaderConfig().getPath();
+   }
+
    @Override
    protected Object getSourceNode(Object targetNode) {
       Object result = null;
       if (targetNode instanceof CompilationUnit) {
          CompilationUnit targetCU = (CompilationUnit) targetNode;
-         String path = getChainConfig().getWriterConfig().getPath() + File.separator;
-         if (targetCU.getPackage() != null) {
-            NameExpr packageName = targetCU.getPackage().getName();
-            String packPath = packageName.toString().replace('.', File.separatorChar);
-            path = path + packPath + File.separator + getPublicTypeDeclaration(targetCU) + ".java";
-         } else {
-            path = path + getPublicTypeDeclaration(targetCU) + ".java";
-         }
+         String path = getWriterPath() + File.separator + targetCU.getFileName();
+
          File sourceFile = new File(path);
          if (sourceFile.exists()) {
             try {
@@ -489,16 +518,6 @@ public class DefaultJavaWalker extends AbstractWalker {
          }
       }
       return result;
-   }
-
-   private String getPublicTypeDeclaration(CompilationUnit cu) {
-      for (TypeDeclaration td : cu.getTypes()) {
-         if (td.getModifiers() == ModifierSet.PUBLIC) {
-            return td.getName();
-         }
-      }
-      throw new WalkModException("Illegal typeDeclaration list, for compilationUnit. No public type found");
-      // TODO faltaria poner que compilationUnit es. Hacer un assert?
    }
 
    @SuppressWarnings("unchecked")

@@ -1480,7 +1480,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
       Object o = ctx.get(NODE_TO_COMPARE_KEY);
       if (o != null) {
          increaseUnmodifiedNodes(VoidType.class);
-         setIsUpdated(false);
+         
       }
    }
 
