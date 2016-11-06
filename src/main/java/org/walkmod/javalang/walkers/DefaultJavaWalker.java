@@ -54,6 +54,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    private boolean ignoreErrors = false;
 
+   private boolean silent = false;
+
    private Map<String, Integer> added = new HashMap<String, Integer>();
 
    private Map<String, Integer> deleted = new HashMap<String, Integer>();
@@ -87,6 +89,10 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    }
 
+   public void setSilent(Boolean silent) {
+      this.silent = silent;
+   }
+
    public DefaultJavaWalker(ClasspathEvaluator classpathEvaluator) {
       this.classpathEvaluator = classpathEvaluator;
    }
@@ -101,6 +107,10 @@ public class DefaultJavaWalker extends AbstractWalker {
 
    public List<String> getConstraintProviders() {
       return constraintProviders;
+   }
+
+   public File getCurrentFile() {
+      return originalFile;
    }
 
    public boolean requiresSemanticAnalysis() {
@@ -156,8 +166,8 @@ public class DefaultJavaWalker extends AbstractWalker {
       }
       super.execute();
    }
-   
-   protected void performSemanticAnalysis(CompilationUnit cu){
+
+   protected void performSemanticAnalysis(CompilationUnit cu) {
       if (requiresSemanticAnalysis == null) {
          List<Object> visitors = getVisitors();
          Iterator<Object> it = visitors.iterator();
@@ -171,7 +181,7 @@ public class DefaultJavaWalker extends AbstractWalker {
             requiresSemanticAnalysis = false;
          }
       }
-      if(requiresSemanticAnalysis){
+      if (requiresSemanticAnalysis) {
 
          ClassLoader cl = getClassLoader();
          if (cl != null) {
@@ -186,19 +196,20 @@ public class DefaultJavaWalker extends AbstractWalker {
                if (!ignoreErrors) {
                   throw e1;
                } else {
-                  log.error(message, e1);
+                  if (!silent) {
+                     log.error(message, e1);
+                  }
                   return;
                }
             }
          } else {
-            throw new WalkModException(
-                  "There is no available project classpath to apply " + "a semantic analysis");
+            throw new WalkModException("There is no available project classpath to apply " + "a semantic analysis");
          }
       }
-      
+
    }
-   
-   protected void addConstraints(CompilationUnit cu){
+
+   protected void addConstraints(CompilationUnit cu) {
       if (constraintProv != null) {
          List<Constraint> constraints = new LinkedList<Constraint>();
          for (ConstraintProvider cp : constraintProv) {
@@ -226,12 +237,17 @@ public class DefaultJavaWalker extends AbstractWalker {
          if (cu != null) {
             performSemanticAnalysis(cu);
             addConstraints(cu);
-            
-            log.debug(file.getPath() + " [ visiting ]");
+            if (!silent) {
+               log.debug(file.getPath() + " [ visiting ]");
+            }
             visit(cu);
-            log.debug(file.getPath() + " [ visited ]");
+            if (!silent) {
+               log.debug(file.getPath() + " [ visited ]");
+            }
          } else {
-            log.warn("Empty compilation unit");
+            if (!silent) {
+               log.warn("Empty compilation unit");
+            }
          }
       }
    }
@@ -342,21 +358,26 @@ public class DefaultJavaWalker extends AbstractWalker {
                   boolean isUpdated = analyzeChanges(cu, returningCU, vc);
 
                   if (isUpdated) {
+                     if (!silent) {
+                        log.debug(originalFile.getPath() + " [with changes]");
 
-                     log.debug(originalFile.getPath() + " [with changes]");
-                     String name = cu.getQualifiedName();
-                     log.info(">> " + name);
-
+                        String name = cu.getQualifiedName();
+                        System.out.println(">> " + name);
+                     }
                      File outputDir = new File(getWriterPath());
                      File inputDir = new File(getReaderPath());
-                     
+
                      if (!outputDir.equals(inputDir)) {
                         vc.remove(ORIGINAL_FILE_KEY);
                      }
                      super.write(element, vc);
-                     log.debug(originalFile.getPath() + " [ written ]");
+                     if (!silent) {
+                        log.debug(originalFile.getPath() + " [ written ]");
+                     }
                   } else {
-                     log.debug(originalFile.getPath() + " [ without changes ] ");
+                     if (!silent) {
+                        log.debug(originalFile.getPath() + " [ without changes ] ");
+                     }
                      //may be we want to force writes
                      resolveWrite = true;
                   }
@@ -371,28 +392,39 @@ public class DefaultJavaWalker extends AbstractWalker {
 
                      File outputDir = new File(getWriterPath(), returningCU.getFileName()).getAbsoluteFile();
 
-                     log.debug(outputDir.getAbsolutePath() + " [ output file ]");
-
+                     if (!silent) {
+                        log.debug(outputDir.getAbsolutePath() + " [ output file ]");
+                     }
                      if (!outputDir.exists()) {
                         //we are writing a new file
-                        log.info("++ " + returningCU.getQualifiedName());
+                        if (!silent) {
+                           log.info("++ " + returningCU.getQualifiedName());
+                        }
                         vc.remove(ORIGINAL_FILE_KEY);
                         super.write(element, vc);
-                        log.debug(outputDir.getPath() + " [ created ]");
-                        log.debug(outputDir.getPath() + " [ written ]");
+                        if (!silent) {
+                          
+                           log.debug(outputDir.getPath() + " [ written ]");
+                        }
                      } else {
                         if (!outputDir.equals(originalFile)) {
                            //we are rewriting an existing source file in the output directory
                            vc.put(ORIGINAL_FILE_KEY, outputDir);
                            super.write(element, vc);
-                           log.debug(outputDir.getPath() + " [ overwritten ]");
+                           if (!silent) {
+                              log.debug(outputDir.getPath() + " [ overwritten ]");
+                           }
                         } else if (!onlyWriteChanges) {
                            //the user forces writes
                            vc.put(ORIGINAL_FILE_KEY, outputDir);
                            super.write(element, vc);
-                           log.debug(outputDir.getPath() + " [ overwritten ]");
+                           if (!silent) {
+                              log.debug(outputDir.getPath() + " [ overwritten ]");
+                           }
                         } else {
-                           log.debug(originalFile.getPath() + " [not written] ");
+                           if (!silent) {
+                              log.debug(originalFile.getPath() + " [not written] ");
+                           }
                         }
 
                      }
@@ -400,7 +432,9 @@ public class DefaultJavaWalker extends AbstractWalker {
                }
             }
          } else {
-            log.info(">> " + originalFile.getPath());
+            if (!silent) {
+               System.out.println(">> " + originalFile.getPath());
+            }
             vc.remove(ORIGINAL_FILE_KEY);
             super.write(element, vc);
          }
@@ -440,7 +474,9 @@ public class DefaultJavaWalker extends AbstractWalker {
          if (!ignoreErrors) {
             throw e1;
          } else {
-            log.error(message, e1);
+            if (!silent) {
+               log.error(message, e1);
+            }
          }
       }
       addVisitorMessages(context);
