@@ -396,7 +396,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
          int indent = indentationLevel;
 
          if (!requiresCurrentIndentation(newNode)) {
-            indent--;
+            if(indent > 0){
+               indent--;
+            }
          } else if (!requiresCurrentIndentation(oldNode)) {
             indent++;
          }
