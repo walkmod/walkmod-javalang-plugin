@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-javalang-plugin</artifactId>
-	<version>2.7.2</version>
+	<version>3.0</version>
 	<url>https://github.com/rpau/walkmod-javalang-plugin</url>
 	<licenses>
 		<license>
@@ -59,6 +59,7 @@
 			<artifactId>javalang</artifactId>
 			<version>[3.1.0, 5.0.0)</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.walkmod</groupId>
 			<artifactId>javalang-compiler</artifactId>
@@ -73,12 +74,18 @@
 		<dependency>
 			<groupId>org.walkmod</groupId>
 			<artifactId>walkmod-core</artifactId>
-			<version>[2.0.0,3.0.0)</version>
+			<version>[3.0.0,4.0.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.7.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

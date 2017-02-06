@@ -19,7 +19,11 @@
 	<bean id="org.walkmod:walkmod-javalang-plugin:string-writer"
 		class="org.walkmod.javalang.writers.StringWriter" singleton="false" />
 
-	<bean id="org.walkmod:walkmod-javalang-plugin:field-policy" class="org.walkmod.javalang.merger.FieldDeclarationPolicy"></bean>
+	<bean id="org.walkmod:walkmod-javalang-plugin:patcher" class="org.walkmod.javalang.writers.PatchWriter"
+		singleton="false" />
+
+	<bean id="org.walkmod:walkmod-javalang-plugin:field-policy" class="org.walkmod.javalang.merger.FieldDeclarationPolicy"
+		singleton="false"></bean>
 
 
 </beans>
