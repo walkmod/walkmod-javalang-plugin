@@ -42,24 +42,19 @@ public class BasicClasspathInitializerTest {
 
             URLClassLoader urcl = (URLClassLoader) value;
 
-            try {
-                URL[] urls = urcl.getURLs();
+            URL[] urls = urcl.getURLs();
 
-                Assert.assertEquals(1, urls.length);
+            Assert.assertEquals(1, urls.length);
 
-                File compilationDir = new File(new File(".walkmod"), "classes").getCanonicalFile();
+            File compilationDir = new File(new File(".walkmod"), "classes").getCanonicalFile();
 
-                Assert.assertEquals(compilationDir.toURI().toURL().toString(), urls[0].toString());
+            Assert.assertEquals(compilationDir.toURI().toURL().toString(), urls[0].toString());
 
-                File[] contents = compilationDir.listFiles();
+            File[] contents = compilationDir.listFiles();
 
-                Assert.assertEquals(1, contents.length);
+            Assert.assertEquals(1, contents.length);
 
-                Assert.assertTrue(contents[0].getPath().endsWith("Foo.class"));
-
-            } finally {
-                urcl.close();
-            }
+            Assert.assertTrue(contents[0].getPath().endsWith("Foo.class"));
 
         } finally {
             FileUtils.deleteDirectory(repoDir);
@@ -101,24 +96,19 @@ public class BasicClasspathInitializerTest {
 
             URLClassLoader urcl = (URLClassLoader) value;
 
-            try {
-                URL[] urls = urcl.getURLs();
+            URL[] urls = urcl.getURLs();
 
-                Assert.assertEquals(1, urls.length);
+            Assert.assertEquals(1, urls.length);
 
-                File compilationDir = new File(new File(".walkmod"), "classes").getCanonicalFile();
+            File compilationDir = new File(new File(".walkmod"), "classes").getCanonicalFile();
 
-                Assert.assertEquals(compilationDir.toURI().toURL().toString(), urls[0].toString());
+            Assert.assertEquals(compilationDir.toURI().toURL().toString(), urls[0].toString());
 
-                File[] contents = compilationDir.listFiles();
+            File[] contents = compilationDir.listFiles();
 
-                Assert.assertEquals(1, contents.length);
+            Assert.assertEquals(1, contents.length);
 
-                Assert.assertTrue(contents[0].listFiles()[0].getPath().endsWith("Foo.class"));
-
-            } finally {
-                urcl.close();
-            }
+            Assert.assertTrue(contents[0].listFiles()[0].getPath().endsWith("Foo.class"));
 
         } finally {
             FileUtils.deleteDirectory(repoDir);
