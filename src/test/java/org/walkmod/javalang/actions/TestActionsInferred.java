@@ -128,17 +128,40 @@ public class TestActionsInferred {
       List<Expression> newArgs = new LinkedList<Expression>();
       newArgs.add(new NameExpr("e"));
 
-      MethodCallExpr mce = new MethodCallExpr(n.getScope(), "info", newArgs);
-      n.getParentNode().replaceChildNode(n, mce);
+      n.setArgs(newArgs);
+      //MethodCallExpr mce = new MethodCallExpr(n.getScope(), "info", newArgs);
+      //n.getParentNode().replaceChildNode(n, mce);
 
       List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
       ReplaceAction action = (ReplaceAction) actions.get(0);
-      Assert.assertEquals("LOG.info(e)", action.getNewText());
+      Assert.assertEquals("e", action.getNewText());
 
       assertCode(actions, code, "public class A { public void foo() { LOG.info(e); }}");
+   }
+   
+   @Test
+   public void testMethodCall() throws Exception {
+      String code = "public class A { public void foo() { LOG.info(foo()); }}";
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
+      MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
+      n.setName("warn");
+
+      List<Action> actions = getActions(cu2, cu);
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      ReplaceAction action = (ReplaceAction) actions.get(0);
+      Assert.assertEquals("LOG.warn(foo())", action.getNewText());
+
+      assertCode(actions, code, "public class A { public void foo() { LOG.warn(foo()); }}");
    }
 
    @Test

@@ -196,7 +196,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     while (auxParent != null && auxParent.getBeginColumn() > first.getBeginColumn()) {
                         auxParent = auxParent.getParentNode();
                     }
-                    if(auxParent != null){
+                    if (auxParent != null) {
                         parent = auxParent;
                     }
                     aux = first.getBeginColumn() - parent.getBeginColumn();
@@ -1980,7 +1980,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     increaseUpdatedNodes(MethodCallExpr.class);
                 }
             } else {
-                applyUpdate(n, aux, theseArgs, otherArgs);
+                int sizeArgs = theseArgs == null ? 0 : theseArgs.size();
+                int sizeOtherArgs = otherArgs == null ? 0 : otherArgs.size();
+                if (sizeArgs != sizeOtherArgs) {
+                    applyUpdate(n, aux, theseArgs, otherArgs);
+                }
                 applyUpdate(n, aux, n.getTypeArgs(), aux.getTypeArgs());
                 increaseUpdatedNodes(MethodCallExpr.class);
             }

@@ -34,6 +34,7 @@ import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.compiler.symbols.SymbolVisitorAdapter;
 import org.walkmod.modelchecker.Constraint;
 import org.walkmod.modelchecker.ConstraintProvider;
+import org.walkmod.util.location.LocationImpl;
 import org.walkmod.walkers.AbstractWalker;
 import org.walkmod.walkers.ChangeLogPrinter;
 import org.walkmod.walkers.Parser;
@@ -72,6 +73,8 @@ public class DefaultJavaWalker extends AbstractWalker {
     private Parser<CompilationUnit> parser;
 
     private Boolean requiresSemanticAnalysis = null;
+
+    private Boolean visitOnFailure = null;
 
     private ClassLoader classLoader;
 
@@ -168,9 +171,14 @@ public class DefaultJavaWalker extends AbstractWalker {
             }
         }
         super.execute();
+        deleteClassLoader();
+    }
+    
+    private void deleteClassLoader(){
+        getChainConfig().getConfiguration().getParameters().remove("classLoader");
     }
 
-    protected void performSemanticAnalysis(CompilationUnit cu) {
+    protected void performSemanticAnalysis(CompilationUnit cu) throws SemanticAnalysisException {
         if (requiresSemanticAnalysis == null) {
             List<Object> visitors = getVisitors();
             Iterator<Object> it = visitors.iterator();
@@ -178,6 +186,12 @@ public class DefaultJavaWalker extends AbstractWalker {
                 Object current = it.next();
                 if (current.getClass().isAnnotationPresent(RequiresSemanticAnalysis.class)) {
                     requiresSemanticAnalysis = true;
+                    if (visitOnFailure == null) {
+                        RequiresSemanticAnalysis annotation = current.getClass()
+                                .getAnnotation(RequiresSemanticAnalysis.class);
+
+                        visitOnFailure = annotation.optional();
+                    }
                 }
             }
             if (requiresSemanticAnalysis == null) {
@@ -193,18 +207,15 @@ public class DefaultJavaWalker extends AbstractWalker {
                 try {
                     visitor.visit(cu, new HashMap<String, Object>());
                 } catch (Throwable e) {
-                    String message = "Error processing the analysis of [" + cu.getQualifiedName() + "]";
-                    WalkModException e1 = new WalkModException(message, e);
-                    e1.setStackTrace(e.getStackTrace());
-                    if (!ignoreErrors) {
-                        throw e1;
-                    } else {
 
-                        return;
-                    }
+                    SemanticAnalysisException ex = new SemanticAnalysisException(
+                            "Error processing the analysis of [" + cu.getQualifiedName() + "]", e);
+                    ex.setStackTrace(e.getStackTrace());
+                    throw ex;
+
                 }
             } else {
-                throw new WalkModException("There is no available project classpath to apply " + "a semantic analysis");
+                throw new SemanticAnalysisException("There is no available project classpath to compile the sources");
             }
         }
 
@@ -232,15 +243,24 @@ public class DefaultJavaWalker extends AbstractWalker {
 
             if (cu != null) {
                 resolveSourceSubdirs(file, cu);
-                performSemanticAnalysis(cu);
-                addConstraints(cu);
-                if (!silent) {
-                    log.debug(file.getPath() + " [ visiting ]");
+                try {
+                    performSemanticAnalysis(cu);
+                    cu.withSymbols(true);
+                    addConstraints(cu);
+                    visit(cu);
+                } catch (SemanticAnalysisException e) {
+                    if (!ignoreErrors) {
+                        throw e;
+                    } else {
+                        if (Boolean.TRUE.equals(visitOnFailure)) {
+                            cu.withSymbols(false);
+                            addConstraints(cu);
+                            visit(cu);
+                        }
+                        return;
+                    }
                 }
-                visit(cu);
-                if (!silent) {
-                    log.debug(file.getPath() + " [ visited ]");
-                }
+
             } else {
                 if (!silent) {
                     log.warn("Empty compilation unit");
@@ -248,7 +268,6 @@ public class DefaultJavaWalker extends AbstractWalker {
             }
         }
     }
-    
 
     public void resolveSourceSubdirs(File file, CompilationUnit cu) throws Exception {
         sourceSubdirectories = JavaSourceUtils.getSourceDirs(getReaderPath(), file, cu);
@@ -477,20 +496,10 @@ public class DefaultJavaWalker extends AbstractWalker {
         try {
             visit(element, context);
         } catch (Throwable e) {
-            String message;
             e.printStackTrace();
-            if (originalFile != null) {
-                message = "Error processing [" + originalFile.getCanonicalPath() + "]";
-            } else {
-                message = "Error processing a Java file ";
-            }
-            WalkModException e1 = new WalkModException(message, e.getCause());
-            Throwable cause = e.getCause();
-            if (cause != null) {
-                e1.setStackTrace(e.getCause().getStackTrace());
-            } else {
-                e1.setStackTrace(e.getStackTrace());
-            }
+            String path = originalFile == null ? null : originalFile.getCanonicalPath();
+            WalkModException e1 = new WalkModException("Error visiting a Java source file", e,
+                    new LocationImpl("File Location", path));
             if (!ignoreErrors) {
                 throw e1;
             }
