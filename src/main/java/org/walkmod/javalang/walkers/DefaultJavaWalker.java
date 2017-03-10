@@ -496,12 +496,14 @@ public class DefaultJavaWalker extends AbstractWalker {
         try {
             visit(element, context);
         } catch (Throwable e) {
-            e.printStackTrace();
             String path = originalFile == null ? null : originalFile.getCanonicalPath();
             WalkModException e1 = new WalkModException("Error visiting a Java source file", e,
                     new LocationImpl("File Location", path));
             if (!ignoreErrors) {
                 throw e1;
+            } else {
+                e1.fillInStackTrace();
+                e1.printStackTrace();
             }
         }
         addVisitorMessages(context);
