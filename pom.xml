@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.walkmod</groupId>
 	<artifactId>walkmod-javalang-plugin</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2</version>
 	<url>https://github.com/rpau/walkmod-javalang-plugin</url>
 	<licenses>
 		<license>
@@ -59,7 +59,11 @@
 			<artifactId>javalang</artifactId>
 			<version>[3.1.0, 5.0.0)</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javapoet</artifactId>
+			<version>1.8.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.walkmod</groupId>
 			<artifactId>javalang-compiler</artifactId>
