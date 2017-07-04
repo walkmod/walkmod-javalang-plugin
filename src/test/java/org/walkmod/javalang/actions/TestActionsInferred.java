@@ -138,7 +138,7 @@ public class TestActionsInferred {
    
    @Test
    public void testMethodCall() throws Exception {
-      String code = "public class A { public void foo() { LOG.info(foo()); }}";
+      String code = "public class A { public void foo() { info(foo()); }}";
       CompilationUnit cu = parser.parse(code, false);
       CompilationUnit cu2 = parser.parse(code, false);
 
@@ -148,6 +148,17 @@ public class TestActionsInferred {
       MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
       n.setName("warn");
 
+      // make position invalid so it can't be used.
+      // Like a replaceement with a new node would have
+      n.setBeginLine(0);
+      n.setBeginColumn(0);
+      n.setEndLine(0);
+      n.setEndColumn(0);
+
+      // introduce a new scope to trigger change inside
+      // position scope of "n"
+      n.setScope(new NameExpr("LOG"));
+
       List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
@@ -155,7 +166,42 @@ public class TestActionsInferred {
       ReplaceAction action = (ReplaceAction) actions.get(0);
       Assert.assertEquals("LOG.warn(foo())", action.getNewText());
 
+      // when pushing "n.pos" instead of "aux.pos" in ChangeLogVisitor the error is having 2 actions and that results in:
+      //  Expected :public class A { public void foo() { LOG.warn(foo()); }}
+      //  Actual   :LOGpublic class A { public void foo() { LOG.warn(foo()); }}
       assertCode(actions, code, "public class A { public void foo() { LOG.warn(foo()); }}");
+   }
+
+   @Test
+   public void testAddingMethodCallScope() throws Exception {
+      String code = "public class A { public void foo() { info(foo()); }}";
+      CompilationUnit cu = parser.parse(code, false);
+      CompilationUnit cu2 = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
+      MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
+
+      // make position invalid so it can't be used.
+      // (Like a replacement with a new node would have)
+      n.setBeginLine(0);
+      n.setBeginColumn(0);
+      n.setEndLine(0);
+      n.setEndColumn(0);
+
+      // introduce a new scope to trigger change inside
+      // position scope of "n"
+      n.setScope(new NameExpr("LOG"));
+
+      List<Action> actions = getActions(cu2, cu);
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      ReplaceAction action = (ReplaceAction) actions.get(0);
+      Assert.assertEquals("LOG.info(foo())", action.getNewText());
+
+      assertCode(actions, code, "public class A { public void foo() { LOG.info(foo()); }}");
    }
 
    @Test
