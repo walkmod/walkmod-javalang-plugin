@@ -1990,6 +1990,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 if (sizeArgs != sizeOtherArgs) {
                     applyUpdate(n, aux, theseArgs, otherArgs);
                 }
+                applyUpdate(n, aux, n.getScope(), aux.getScope());
                 applyUpdate(n, aux, n.getTypeArgs(), aux.getTypeArgs());
                 increaseUpdatedNodes(MethodCallExpr.class);
             }
