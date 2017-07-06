@@ -817,10 +817,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             inferASTChanges(n.getThrows(), aux.getThrows());
             popPosition();
             pushPosition(pos);
-            if (!equals) {
+            if (!equals) { // || isUpdated()) {
                 applyUpdate(n, (Node) o);
+            } else {
+                inferASTChanges(n.getBody(), aux.getBody());
             }
-            inferASTChanges(n.getBody(), aux.getBody());
             if (!isUpdated()) {
                 if (equals) {
                     increaseUnmodifiedNodes(MethodDeclaration.class);
