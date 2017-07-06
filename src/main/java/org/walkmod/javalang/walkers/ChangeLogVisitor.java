@@ -722,6 +722,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
             inferASTChanges(n.getExtends(), aux.getExtends());
             inferASTChanges(n.getImplements(), aux.getImplements());
+            popPosition();
             pushPosition(pos);
 
             if (!equals) {
