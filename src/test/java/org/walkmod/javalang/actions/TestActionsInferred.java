@@ -1,5 +1,6 @@
 package org.walkmod.javalang.actions;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -389,6 +390,35 @@ public class TestActionsInferred {
       Assert.assertEquals(1, actions.get(0).getBeginColumn());
       Assert.assertEquals(ActionType.APPEND, actions.get(0).getType());
       assertCode(actions, code2, "public class A {\n private String name;\n private int age;\n}");
+   }
+
+   /** Bug: duplicate append */
+   @Test
+   public void testAddMethodCallAndChangeModifiers() throws Exception {
+      String code = "public class A {\n void foo() {}\n}\n";
+      CompilationUnit modifiedCu = parser.parse(code, false);
+
+      String code2 = "public class A {\n void foo() {}\n}\n";
+
+      MethodCallExpr call = (MethodCallExpr) ASTManager.parse(MethodCallExpr.class, "System.out.println(\"hello\");", true);
+
+      CompilationUnit originalCu = parser.parse(code2, false);
+      TypeDeclaration classA = modifiedCu.getTypes().get(0);
+      MethodDeclaration md = (MethodDeclaration) classA.getMembers().get(0);
+      md.setModifiers(ModifierSet.addModifier(md.getModifiers(), ModifierSet.PUBLIC));
+      md.getBody().setStmts(Arrays.<Statement>asList(new ExpressionStmt(call)));
+
+      List<Action> actions = getActions(originalCu, modifiedCu);
+
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(2, actions.get(0).getBeginColumn());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      assertCode(actions, code2, "public class A {\n"
+              + " public void foo() {\n"
+              + "  System.out.println(\"hello\");\n"
+              + " }\n"
+              + "}\n");
    }
 
    @Test
