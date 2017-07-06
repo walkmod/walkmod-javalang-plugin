@@ -81,9 +81,12 @@ public class TestActionsInferred {
 
    private List<Action> getActions(CompilationUnit original, CompilationUnit modified) {
       ChangeLogVisitor visitor = new ChangeLogVisitor();
+      Assert.assertEquals(1, visitor.getPositionStack().size());
       VisitorContext ctx = new VisitorContext();
       ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, original);
       visitor.visit(modified, ctx);
+      // assert balanced push/pop calls
+      Assert.assertEquals(1, visitor.getPositionStack().size());
       return visitor.getActionsToApply();
    }
 

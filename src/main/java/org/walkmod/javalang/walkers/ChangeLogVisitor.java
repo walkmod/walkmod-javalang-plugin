@@ -17,7 +17,9 @@ package org.walkmod.javalang.walkers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -2875,5 +2877,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private Position popPosition() {
         return position.pop();
+    }
+
+    // for testing
+    public Deque<Position> getPositionStack() {
+        return new ArrayDeque<Position>(position);
     }
 }
