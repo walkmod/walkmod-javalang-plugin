@@ -368,6 +368,7 @@ public class TestActionsInferred {
 
    }
 
+   @Test
    public void testAppendField() throws Exception {
       String code = "public class A {\n private String name;\n}";
       CompilationUnit modifiedCu = parser.parse(code, false);
