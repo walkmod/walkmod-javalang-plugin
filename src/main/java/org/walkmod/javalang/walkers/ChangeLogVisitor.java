@@ -220,7 +220,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private void decreaseIndentation() {
         if (indentationLevel > 0) {
-            indentationLevel--;
+            indentationLevel
+              ;
         }
     }
 
@@ -722,6 +723,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
             inferASTChanges(n.getExtends(), aux.getExtends());
             inferASTChanges(n.getImplements(), aux.getImplements());
+
             popPosition();
             pushPosition(pos);
 
@@ -2884,4 +2886,5 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
     public Deque<Position> getPositionStack() {
         return new ArrayDeque<Position>(position);
     }
+
 }
