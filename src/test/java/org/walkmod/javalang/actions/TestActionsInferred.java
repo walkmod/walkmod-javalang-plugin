@@ -61,11 +61,7 @@ public class TestActionsInferred {
 
       CompilationUnit cu2 = parser.parse(code, false);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
-      visitor.visit((CompilationUnit) cu2, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu, cu2);
       Assert.assertTrue(actions.isEmpty());
    }
 
@@ -79,11 +75,7 @@ public class TestActionsInferred {
 
       CompilationUnit cu2 = parser.parse(code, false);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu);
-      visitor.visit((CompilationUnit) cu2, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu, cu2);
       Assert.assertTrue(actions.isEmpty());
    }
 
@@ -91,9 +83,8 @@ public class TestActionsInferred {
       ChangeLogVisitor visitor = new ChangeLogVisitor();
       VisitorContext ctx = new VisitorContext();
       ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, original);
-      visitor.visit((CompilationUnit) modified, ctx);
-      List<Action> actions = visitor.getActionsToApply();
-      return actions;
+      visitor.visit(modified, ctx);
+      return visitor.getActionsToApply();
    }
 
    @Test
@@ -538,11 +529,7 @@ public class TestActionsInferred {
       imports.add(new ImportDeclaration(new NameExpr("java.io.Serializable"), false, false));
       cu.setImports(imports);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(2, actions.size());
    }
 
@@ -556,11 +543,7 @@ public class TestActionsInferred {
       comments.add(new BlockComment("license"));
       cu.setComments(comments);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "/*license*/\npublic class B { private int name;}");
@@ -580,11 +563,7 @@ public class TestActionsInferred {
       Comment c = cu.getComments().get(0);
       c.setContent("static");
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { /*static*/private int name, surname;}");
@@ -600,11 +579,7 @@ public class TestActionsInferred {
       Comment c = cu.getComments().get(0);
       c.setContent("static");
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { private /*static*/ int name;}");
@@ -623,11 +598,7 @@ public class TestActionsInferred {
       params.add(new Parameter(new PrimitiveType(Primitive.Int), new VariableDeclaratorId("p")));
       md.setParameters(params);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { public void foo(int p) {} }");
@@ -643,11 +614,7 @@ public class TestActionsInferred {
       FieldDeclaration md = (FieldDeclaration) cu.getTypes().get(0).getMembers().get(0);
       md.setModifiers(ModifierSet.PRIVATE);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { private String foo; }");
@@ -663,11 +630,7 @@ public class TestActionsInferred {
       FieldDeclaration md = (FieldDeclaration) cu.getTypes().get(0).getMembers().get(0);
       md.setModifiers(ModifierSet.PRIVATE);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B {\n    private String foo;\n}");
@@ -685,11 +648,7 @@ public class TestActionsInferred {
       annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
       md.setAnnotations(annotations);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { @Override public void foo(){} }");
@@ -704,11 +663,7 @@ public class TestActionsInferred {
       annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
       md.setAnnotations(annotations);
 
-      visitor = new ChangeLogVisitor();
-      ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      actions = visitor.getActionsToApply();
+      actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B {\n  @Override\n  public void foo(){\n  }\n }");
@@ -727,11 +682,7 @@ public class TestActionsInferred {
       annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
       md.setAnnotations(annotations);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B {\n\t @Override\n\t public void foo(){\t\teo();\t\tbar();\n} }");
@@ -755,11 +706,7 @@ public class TestActionsInferred {
       annotations.add(new MarkerAnnotationExpr(new NameExpr("Override")));
       md2.setAnnotations(annotations);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code,
@@ -778,11 +725,7 @@ public class TestActionsInferred {
 
       List<TypeParameter> types = dec.getTypeParameters();
       types.add(new TypeParameter("D", null));
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
@@ -793,12 +736,8 @@ public class TestActionsInferred {
       types = dec.getTypeParameters();
       types.remove(0);
       types.add(new TypeParameter("D", null));
-      visitor = new ChangeLogVisitor();
-      ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
 
-      actions = visitor.getActionsToApply();
+      actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
@@ -818,11 +757,7 @@ public class TestActionsInferred {
       MethodCallExpr expr = (MethodCallExpr) stmt.getExpression();
       expr.getArgs().add(new IntegerLiteralExpr("4"));
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
@@ -862,11 +797,7 @@ public class TestActionsInferred {
       List<Statement> stmts = md.getBody().getStmts();
       stmts.remove(0);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REMOVE, actions.get(0).getType());
 
@@ -893,11 +824,7 @@ public class TestActionsInferred {
       ifStmt.setThenStmt(thenStmt.getThenStmt().clone());
       thenStmt.remove();
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       assertCode(actions, code, "public class Foo{\n\tpublic void foo() {\n\t\tif(a && b){\n\t\t\ti++;\n\t\t}\n\t}\n}");
    }
 
@@ -911,11 +838,7 @@ public class TestActionsInferred {
       MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
       md.setJavaDoc(null);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B { public void foo(){} }");
@@ -939,11 +862,7 @@ public class TestActionsInferred {
       stmts.add(new BlockStmt(entries.get(0).getStmts()));
       entries.get(0).setStmts(stmts);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code,
@@ -968,11 +887,7 @@ public class TestActionsInferred {
       stmts.add(new BlockStmt(entries.get(0).getStmts()));
       entries.get(0).setStmts(stmts);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(3, actions.size());
 
       assertCode(actions, code,
@@ -997,11 +912,7 @@ public class TestActionsInferred {
       stmts.add(new BlockStmt(entries.get(0).getStmts()));
       entries.get(0).setStmts(stmts);
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code,
@@ -1024,11 +935,7 @@ public class TestActionsInferred {
 
       stmt.replaceChildNode(expr, expr.getInner());
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
 
       assertCode(actions, code, "public class B{ public boolean bar() { return true; }}");
@@ -1050,11 +957,7 @@ public class TestActionsInferred {
 
       entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       assertCode(actions, code,
             "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\t\tcase 1:\n\t\t\t\t{\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t}\n\t}\n}");
@@ -1076,11 +979,7 @@ public class TestActionsInferred {
 
       entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       assertCode(actions, code,
             "public class B{\n    public boolean bar() { \n        return true;\n    }\n\tpublic void bar(int x) {\n\t\tswitch(x) {\n\t\tcase 1:\n\t\t\t{\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t}\n}");
@@ -1102,11 +1001,7 @@ public class TestActionsInferred {
 
       entry.replaceChildNode(entry.getStmts().get(0), new BlockStmt(new LinkedList<Statement>(entry.getStmts())));
 
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       
       assertCode(actions, code,
@@ -1133,12 +1028,8 @@ public class TestActionsInferred {
       
       entry.setStmts(stmts);
       switchStmt.getEntries().add(entry);
-      
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       
    
@@ -1169,12 +1060,8 @@ public class TestActionsInferred {
       List<SwitchEntryStmt> entries = switchStmt.getEntries();
       entries.add(entry);
       switchStmt.setEntries(entries);
-      
-      ChangeLogVisitor visitor = new ChangeLogVisitor();
-      VisitorContext ctx = new VisitorContext();
-      ctx.put(ChangeLogVisitor.NODE_TO_COMPARE_KEY, cu2);
-      visitor.visit((CompilationUnit) cu, ctx);
-      List<Action> actions = visitor.getActionsToApply();
+
+      List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       
    
