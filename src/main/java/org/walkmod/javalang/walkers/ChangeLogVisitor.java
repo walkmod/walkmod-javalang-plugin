@@ -220,8 +220,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private void decreaseIndentation() {
         if (indentationLevel > 0) {
-            indentationLevel
-              ;
+            indentationLevel--;
         }
     }
 
