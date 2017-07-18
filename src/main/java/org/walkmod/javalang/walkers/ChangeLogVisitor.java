@@ -2525,7 +2525,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     public void visit(IfStmt n, VisitorContext ctx) {
         Object o = ctx.get(NODE_TO_COMPARE_KEY);
-        if (o != null && n instanceof IfStmt) {
+        if (o != null && o instanceof IfStmt) {
             IfStmt aux = (IfStmt) o;
             boolean backup = isUpdated();
             setIsUpdated(false);
