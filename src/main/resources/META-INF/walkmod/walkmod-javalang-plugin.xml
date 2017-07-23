@@ -1,29 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-   "http://www.springframework.org/dtd/spring-beans.dtd">
-
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
-	<bean id="walkmod:commons:field-policy" class="org.walkmod.javalang.merger.FieldDeclarationPolicy"></bean>
-
-	<bean id="walkmod:commons:comment-policy" class="org.walkmod.merger.AddAllMergePolicy" />
-
-	<bean id="org.walkmod:walkmod-javalang-plugin:walker" class="org.walkmod.javalang.walkers.DefaultJavaWalker"
-		singleton="false">
+    <bean id="walkmod:commons:field-policy"
+        class="org.walkmod.javalang.merger.FieldDeclarationPolicy"/>
+    <bean id="walkmod:commons:comment-policy"
+        class="org.walkmod.merger.AddAllMergePolicy"/>
+    <bean id="org.walkmod:walkmod-javalang-plugin:walker"
+        class="org.walkmod.javalang.walkers.DefaultJavaWalker" singleton="false">
 	</bean>
-
-
-	<bean id="org.walkmod:walkmod-javalang-plugin:parser" class="org.walkmod.javalang.walkers.DefaultJavaParser"
-		singleton="false" />
-
-	<bean id="org.walkmod:walkmod-javalang-plugin:string-writer"
-		class="org.walkmod.javalang.writers.StringWriter" singleton="false" />
-
-	<bean id="org.walkmod:walkmod-javalang-plugin:patcher" class="org.walkmod.javalang.writers.PatchWriter"
-		singleton="false" />
-
-	<bean id="org.walkmod:walkmod-javalang-plugin:field-policy" class="org.walkmod.javalang.merger.FieldDeclarationPolicy"
-		singleton="false"></bean>
-
-
+    <bean id="org.walkmod:walkmod-javalang-plugin:parser"
+        class="org.walkmod.javalang.walkers.DefaultJavaParser" singleton="false"/>
+    <bean id="org.walkmod:walkmod-javalang-plugin:string-writer"
+        class="org.walkmod.javalang.writers.StringWriter" singleton="false"/>
+    <bean id="org.walkmod:walkmod-javalang-plugin:patcher"
+        class="org.walkmod.javalang.writers.PatchWriter" singleton="false"/>
+    <bean id="org.walkmod:walkmod-javalang-plugin:field-policy"
+        class="org.walkmod.javalang.merger.FieldDeclarationPolicy" singleton="false"/>
 </beans>
