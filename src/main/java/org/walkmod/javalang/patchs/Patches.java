@@ -20,7 +20,7 @@ public class Patches {
                 "b" + File.separator + location, original, patches, 4);
         Iterator<String> it = unifiedDiffs.iterator();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (it.hasNext()) {
             sb.append(it.next());
             if (it.hasNext()) {
@@ -36,7 +36,7 @@ public class Patches {
 
         Patch<String> generatedPatch = DiffUtils.parseUnifiedDiff(diff);
         Iterator<String> it = DiffUtils.patch(original, generatedPatch).iterator();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (it.hasNext()) {
             sb.append(it.next());
             if (it.hasNext()) {
