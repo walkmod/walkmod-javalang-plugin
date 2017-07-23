@@ -149,9 +149,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     public static final String DELETE_ACTION_KEY = "delete_action_key";
 
-    private boolean isUpdated = false;
+    private boolean isUpdated;
 
-    private static Properties properties = null;
+    private static Properties properties;
 
     private static Logger log = Logger.getLogger(ChangeLogVisitor.class);
 
@@ -161,9 +161,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private LinkedList<Action> actionsToApply = new LinkedList<>();
 
-    private int indentationLevel = 0;
+    private int indentationLevel;
 
-    private int indentationSize = 0;
+    private int indentationSize;
 
     private List<Comment> comments = new LinkedList<>();
 

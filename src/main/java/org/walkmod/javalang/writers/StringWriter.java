@@ -35,7 +35,7 @@ public class StringWriter extends AbstractFileWriter {
 
     private char indentationChar = ' ';
 
-    private char indentationLevel = 0;
+    private char indentationLevel;
 
     private int indentationSize = 2;
 

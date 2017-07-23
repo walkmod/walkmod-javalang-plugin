@@ -58,7 +58,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 
     private boolean ignoreErrors = true;
 
-    private boolean silent = false;
+    private boolean silent;
 
     private Map<String, Integer> added = new HashMap<>();
 
@@ -74,17 +74,17 @@ public class DefaultJavaWalker extends AbstractWalker {
 
     private Parser<CompilationUnit> parser;
 
-    private Boolean requiresSemanticAnalysis = null;
+    private Boolean requiresSemanticAnalysis;
 
-    private Boolean visitOnFailure = null;
+    private Boolean visitOnFailure;
 
     private ClassLoader classLoader;
 
-    private ClasspathEvaluator classpathEvaluator = null;
+    private ClasspathEvaluator classpathEvaluator;
 
-    private List<ConstraintProvider<?>> constraintProv = null;
+    private List<ConstraintProvider<?>> constraintProv;
 
-    private List<String> constraintProviders = null;
+    private List<String> constraintProviders;
 
     private String sourceSubdirectories = "";
 
