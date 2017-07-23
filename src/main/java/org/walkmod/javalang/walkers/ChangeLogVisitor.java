@@ -716,7 +716,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
@@ -808,7 +808,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName()) && n.getArrayCount() == aux.getArrayCount()
                     && n.getModifiers() == aux.getModifiers() && n.isDefault() == aux.isDefault();
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
@@ -819,8 +819,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             pushPosition(pos);
             if (!equals) {
                 applyUpdate(n, (Node) o);
+            } else {
+                inferASTChanges(n.getBody(), aux.getBody());
             }
-            inferASTChanges(n.getBody(), aux.getBody());
             if (!isUpdated()) {
                 if (equals) {
                     increaseUnmodifiedNodes(MethodDeclaration.class);
@@ -844,7 +845,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             setIsUpdated(false);
             FieldDeclaration aux = (FieldDeclaration) o;
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getType(), aux.getType());
@@ -976,7 +977,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getImplements(), aux.getImplements());
@@ -1027,7 +1028,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             popPosition();
@@ -1066,7 +1067,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName());
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getArgs(), aux.getArgs());
@@ -1107,7 +1108,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             popPosition();
@@ -1145,7 +1146,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
             boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getDefaultValue(), aux.getDefaultValue());
@@ -1226,7 +1227,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName()) && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getTypeParameters(), aux.getTypeParameters());
@@ -1329,8 +1330,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean backup = isUpdated();
             setIsUpdated(false);
             Position pos = popPosition();
-            pushPosition(n);
             EmptyMemberDeclaration aux = (EmptyMemberDeclaration) o;
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             popPosition();
@@ -1355,7 +1356,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             setIsUpdated(false);
             InitializerDeclaration aux = (InitializerDeclaration) o;
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             popPosition();
@@ -1408,7 +1409,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getName().equals(aux.getName());
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getScope(), aux.getScope());
             inferASTChanges(n.getTypeArgs(), aux.getTypeArgs());
             popPosition();
@@ -1445,7 +1446,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 applyUpdate(n, (Node) o);
             }
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             popPosition();
             pushPosition(pos);
@@ -1472,7 +1473,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean equals = n.getType().equals(aux.getType()) && n.getArrayCount() == aux.getArrayCount();
 
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChangesList(n.getArraysAnnotations(), aux.getArraysAnnotations());
             popPosition();
@@ -1509,7 +1510,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean backup = isUpdated();
             setIsUpdated(false);
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getExtends(), aux.getExtends());
             inferASTChanges(n.getSuper(), aux.getSuper());
@@ -1562,7 +1563,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean backup = isUpdated();
             setIsUpdated(false);
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChangesList(n.getArraysAnnotations(), aux.getArraysAnnotations());
             inferASTChanges(n.getDimensions(), aux.getDimensions());
             inferASTChanges(n.getType(), aux.getType());
@@ -1958,41 +1959,60 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         Object o = ctx.get(NODE_TO_COMPARE_KEY);
         if (o != null && o instanceof MethodCallExpr) {
             MethodCallExpr aux = (MethodCallExpr) o;
+            boolean scopeUpdated = false;
+            Position pos = popPosition();
+            pushPosition(aux);
+            if (n.getScope() != null) {
+                // inferring actions at scope level
+                boolean backup = isUpdated();
+                setIsUpdated(false);
+                inferASTChanges(n.getScope(), aux.getScope());
+                scopeUpdated = isUpdated();
+                setIsUpdated(backup || isUpdated());
+            }
 
-            boolean equals = n.getName().equals(aux.getName());
-
+            //replace in case of an scope change or if the method name has changed
+            boolean requiresAReplacement = !n.getName().equals(aux.getName()) || scopeUpdated;
             boolean backup = isUpdated();
             setIsUpdated(false);
-            Position pos = popPosition();
 
-            position.push(new Position(n.getBeginLine(), n.getBeginColumn()));
-            inferASTChanges(n.getScope(), aux.getScope());
-            inferASTChanges(n.getTypeArgs(), aux.getTypeArgs());
-            List<Expression> theseArgs = n.getArgs();
-            List<Expression> otherArgs = aux.getArgs();
-            inferASTChanges(theseArgs, otherArgs);
-
-            popPosition();
-            pushPosition(pos);
-            if (!equals) {
+            if (requiresAReplacement) {
+                //if there is a new method scope node, the "." needs to be generated
                 applyUpdate(n, (Node) o);
-            }
-            if (!isUpdated()) {
-                if (equals) {
-                    increaseUnmodifiedNodes(MethodCallExpr.class);
+                popPosition();
+                pushPosition(pos);
+                increaseUpdatedNodes(MethodCallExpr.class);
+
+            } else {
+                //we are rewriting the necessary children elements
+                inferASTChanges(n.getTypeArgs(), aux.getTypeArgs());
+                List<Expression> theseArgs = n.getArgs();
+                List<Expression> otherArgs = aux.getArgs();
+                inferASTChanges(theseArgs, otherArgs);
+
+                popPosition();
+                pushPosition(pos);
+
+                if (!isUpdated()) {
+                    if (!requiresAReplacement) {
+                        increaseUnmodifiedNodes(MethodCallExpr.class);
+                    } else {
+                        increaseUpdatedNodes(MethodCallExpr.class);
+                    }
                 } else {
+                    int sizeArgs = theseArgs == null ? 0 : theseArgs.size();
+                    int sizeOtherArgs = otherArgs == null ? 0 : otherArgs.size();
+                    if (sizeArgs != sizeOtherArgs) {
+                        applyUpdate(n, aux, theseArgs, otherArgs);
+                    }
+
+                    applyUpdate(n, aux, n.getTypeArgs(), aux.getTypeArgs());
                     increaseUpdatedNodes(MethodCallExpr.class);
                 }
-            } else {
-                int sizeArgs = theseArgs == null ? 0 : theseArgs.size();
-                int sizeOtherArgs = otherArgs == null ? 0 : otherArgs.size();
-                if (sizeArgs != sizeOtherArgs) {
-                    applyUpdate(n, aux, theseArgs, otherArgs);
-                }
-                applyUpdate(n, aux, n.getTypeArgs(), aux.getTypeArgs());
-                increaseUpdatedNodes(MethodCallExpr.class);
+                setIsUpdated(backup || isUpdated());
             }
-            setIsUpdated(backup || isUpdated());
+
+
         } else if (o != null) {
             setIsUpdated(true);
             applyUpdate(n, (Node) o);
@@ -2025,7 +2045,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             boolean backup = isUpdated();
             setIsUpdated(false);
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getScope(), aux.getScope());
             inferASTChanges(n.getType(), aux.getType());
             inferASTChanges(n.getTypeArgs(), aux.getTypeArgs());
@@ -2159,7 +2179,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
             boolean equals = n.getModifiers() == aux.getModifiers();
             Position pos = popPosition();
-            pushPosition(n);
+            pushPosition(aux);
             inferASTChanges(n.getAnnotations(), aux.getAnnotations());
             inferASTChanges(n.getVars(), aux.getVars());
             inferASTChanges(n.getType(), aux.getType());

@@ -1,5 +1,6 @@
 package org.walkmod.javalang.actions;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,6 +80,34 @@ public class TestActionsInferred {
       Assert.assertTrue(actions.isEmpty());
    }
 
+   @Test
+   public void testAddMethodCallAndChangeModifiers() throws Exception {
+      String code = "public class A {\n void foo() {}\n}\n";
+      CompilationUnit modifiedCu = parser.parse(code, false);
+
+      String code2 = "public class A {\n void foo() {}\n}\n";
+
+      MethodCallExpr call = (MethodCallExpr) ASTManager.parse(MethodCallExpr.class, "System.out.println(\"hello\");", true);
+
+      CompilationUnit originalCu = parser.parse(code2, false);
+      TypeDeclaration classA = modifiedCu.getTypes().get(0);
+      MethodDeclaration md = (MethodDeclaration) classA.getMembers().get(0);
+      md.setModifiers(ModifierSet.addModifier(md.getModifiers(), ModifierSet.PUBLIC));
+      md.getBody().setStmts(Arrays.<Statement>asList(new ExpressionStmt(call)));
+
+      List<Action> actions = getActions(originalCu, modifiedCu);
+
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(2, actions.get(0).getBeginColumn());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      assertCode(actions, code2, "public class A {\n"+
+              " public void foo() {\n"+
+              "  System.out.println(\"hello\");\n"+
+              " }\n"+
+              "}\n");
+   }
+
    private List<Action> getActions(CompilationUnit original, CompilationUnit modified) {
       ChangeLogVisitor visitor = new ChangeLogVisitor();
       Assert.assertEquals(1, visitor.getPositionStack().size());
@@ -138,7 +167,44 @@ public class TestActionsInferred {
    
    @Test
    public void testMethodCall() throws Exception {
-      String code = "public class A { public void foo() { LOG.info(foo()); }}";
+      String code = "public class A { public void foo() { info(foo()); }}";
+      CompilationUnit modifiedCU = parser.parse(code, false);
+      CompilationUnit originalCU = parser.parse(code, false);
+
+      MethodDeclaration md = (MethodDeclaration) modifiedCU.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
+      MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
+      n.setName("warn");
+
+      // make position invalid so it can't be used.
+      // Like a replaceement with a new node would have
+      n.setBeginLine(0);
+      n.setBeginColumn(0);
+      n.setEndLine(0);
+      n.setEndColumn(0);
+
+      // introduce a new scope to trigger change inside
+      // position scope of "n"
+      n.setScope(new NameExpr("LOG"));
+
+      //getActions(originalCu, modifiedCu);
+      List<Action> actions = getActions(originalCU, modifiedCU);
+      Assert.assertEquals(1, actions.size());
+      Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
+
+      ReplaceAction action = (ReplaceAction) actions.get(0);
+      Assert.assertEquals("LOG.warn(foo())", action.getNewText());
+
+      // when pushing "n.pos" instead of "aux.pos" in ChangeLogVisitor the error is having 2 actions and that results in:
+      //  Expected :public class A { public void foo() { LOG.warn(foo()); }}
+      //  Actual   :LOGpublic class A { public void foo() { LOG.warn(foo()); }}
+      assertCode(actions, code, "public class A { public void foo() { LOG.warn(foo()); }}");
+   }
+
+   @Test
+   public void testAddingMethodCallScope() throws Exception {
+      String code = "public class A { public void foo() { info(foo()); }}";
       CompilationUnit cu = parser.parse(code, false);
       CompilationUnit cu2 = parser.parse(code, false);
 
@@ -146,16 +212,26 @@ public class TestActionsInferred {
       List<Statement> stmts = md.getBody().getStmts();
       ExpressionStmt eStmt = (ExpressionStmt) stmts.get(0);
       MethodCallExpr n = (MethodCallExpr) eStmt.getExpression();
-      n.setName("warn");
+
+      // make position invalid so it can't be used.
+      // (Like a replacement with a new node would have)
+      n.setBeginLine(0);
+      n.setBeginColumn(0);
+      n.setEndLine(0);
+      n.setEndColumn(0);
+
+      // introduce a new scope to trigger change inside
+      // position scope of "n"
+      n.setScope(new NameExpr("LOG"));
 
       List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals(ActionType.REPLACE, actions.get(0).getType());
 
       ReplaceAction action = (ReplaceAction) actions.get(0);
-      Assert.assertEquals("LOG.warn(foo())", action.getNewText());
+      Assert.assertEquals("LOG.info(foo())", action.getText("", ' '));
 
-      assertCode(actions, code, "public class A { public void foo() { LOG.warn(foo()); }}");
+      assertCode(actions, code, "public class A { public void foo() { LOG.info(foo()); }}");
    }
 
    @Test
@@ -792,7 +868,12 @@ public class TestActionsInferred {
 
    @Test
    public void testChangesOnStmts() throws ParseException {
-      String code = "public class Bar{\n    public void foo() {\n        String s = null;\n        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n    }\n}";
+      String code = "public class Bar{\n" +
+              "    public void foo() {\n" +
+              "        String s = null;\n" +
+              "        names.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());\n" +
+              "    }\n" +
+              "}";
       DefaultJavaParser parser = new DefaultJavaParser();
       CompilationUnit cu = parser.parse(code, false);
       CompilationUnit cu2 = parser.parse(code, false);
