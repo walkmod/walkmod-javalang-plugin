@@ -19,7 +19,6 @@ public class DefaultClasspathEvaluator implements ClasspathEvaluator {
         if (walker.requiresSemanticAnalysis() && requiresToEvaluateClasspath(walker)) {
 
             runClassLoaderInitializers(walker);
-
         }
     }
 
@@ -45,7 +44,8 @@ public class DefaultClasspathEvaluator implements ClasspathEvaluator {
         Map<String, Object> params = conf.getParameters();
         if (initCfgs == null || initCfgs.isEmpty()) {
 
-            BasicClasspathInitializer basicInitializer = new BasicClasspathInitializer(walker.getReaderPath(), walker.getParser());
+            BasicClasspathInitializer basicInitializer =
+                    new BasicClasspathInitializer(walker.getReaderPath(), walker.getParser());
             basicInitializer.init(conf);
             basicInitializer.load();
 
@@ -76,5 +76,4 @@ public class DefaultClasspathEvaluator implements ClasspathEvaluator {
             }
         }
     }
-
 }

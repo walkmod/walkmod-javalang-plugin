@@ -7,6 +7,7 @@ import java.net.URLClassLoader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.conf.entities.impl.ConfigurationImpl;
 
@@ -60,7 +61,6 @@ public class BasicClasspathInitializerTest {
             FileUtils.deleteDirectory(repoDir);
             System.setProperty("user.dir", userDir);
         }
-
     }
 
     @Test
@@ -114,6 +114,5 @@ public class BasicClasspathInitializerTest {
             FileUtils.deleteDirectory(repoDir);
             System.setProperty("user.dir", userDir);
         }
-
     }
 }

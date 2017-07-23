@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+
 import org.walkmod.javalang.actions.Action;
 import org.walkmod.javalang.actions.ActionsApplier;
 import org.walkmod.javalang.ast.Node;
@@ -96,9 +97,7 @@ public class PatchWriter extends AbstractPatchWriter {
             buffer.append(patchFormat.getFormatter().format(getLocation(original), patches));
 
             return buffer.toString();
-
         }
         return "";
     }
-
 }

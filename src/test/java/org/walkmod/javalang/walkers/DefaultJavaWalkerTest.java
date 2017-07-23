@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
+
 import org.walkmod.conf.entities.TransformationConfig;
 import org.walkmod.conf.entities.impl.ChainConfigImpl;
 import org.walkmod.conf.entities.impl.TransformationConfigImpl;
@@ -21,7 +22,8 @@ public class DefaultJavaWalkerTest {
 
     @Test
     public void when_compilationunit_is_under_a_reader_path_then_subfolder_can_be_resolved() throws Exception {
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return "src/test/resources/test1";
@@ -29,15 +31,16 @@ public class DefaultJavaWalkerTest {
         };
         File sampleDir = initFolder("src/test/resources/test1/subfolder");
         File fooClass = createJavaFile("Foo", sampleDir);
-          
+
         walker.resolveSourceSubdirs(fooClass, new DefaultJavaParser().parse(fooClass));
-        
-        Assert.assertEquals("subfolder"+File.separator, walker.getSourceSubdirectories());
+
+        Assert.assertEquals("subfolder" + File.separator, walker.getSourceSubdirectories());
     }
-    
+
     @Test
     public void when_compilationunit_is_in_root_dir_then_subfolder_is_empty() throws Exception {
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return ".";
@@ -45,17 +48,17 @@ public class DefaultJavaWalkerTest {
         };
         File sampleDir = new File(".");
         File fooClass = createJavaFile("Foo", sampleDir);
-          
+
         walker.resolveSourceSubdirs(fooClass, new DefaultJavaParser().parse(fooClass));
         fooClass.delete();
-        
+
         Assert.assertEquals("", walker.getSourceSubdirectories());
-       
     }
-    
+
     @Test
     public void when_compilationunit_is_under_a_subfolder_of_root_dir_then_subfolder_is_empty() throws Exception {
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return ".";
@@ -63,21 +66,22 @@ public class DefaultJavaWalkerTest {
         };
         File sampleDir = initFolder("./src/test/resources/test1/subfolder");
         File fooClass = createJavaFile("Foo", sampleDir);
-          
+
         walker.resolveSourceSubdirs(fooClass, new DefaultJavaParser().parse(fooClass));
         fooClass.delete();
-        
-        Assert.assertEquals("src/test/resources/test1/subfolder"+File.separator, walker.getSourceSubdirectories());
-       
+
+        Assert.assertEquals("src/test/resources/test1/subfolder" + File.separator, walker.getSourceSubdirectories());
     }
-    
+
     @Test
-    public void when_there_are_subfolders_then_outputfile_with_same_reader_path_contains_them() throws Exception{
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+    public void when_there_are_subfolders_then_outputfile_with_same_reader_path_contains_them() throws Exception {
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return "src/test/resources/test1";
             }
+
             @Override
             protected String getWriterPath() {
                 return "src/test/resources/test1";
@@ -85,24 +89,25 @@ public class DefaultJavaWalkerTest {
         };
         File sampleDir = initFolder("src/test/resources/test1/subfolder");
         File fooClass = createJavaFile("Foo", sampleDir);
-        
+
         CompilationUnit cu = new DefaultJavaParser().parse(fooClass);
-          
+
         walker.resolveSourceSubdirs(fooClass, cu);
-      
+
         File file = walker.resolveFile(cu);
-        
+
         Assert.assertEquals(fooClass.getCanonicalPath(), file.getPath());
     }
-    
-    
+
     @Test
-    public void when_there_are_subfolders_then_outputfile_with_different_reader_path_contains_them() throws Exception{
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+    public void when_there_are_subfolders_then_outputfile_with_different_reader_path_contains_them() throws Exception {
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return "src/test/resources/test1";
             }
+
             @Override
             protected String getWriterPath() {
                 return "src/test/resources/test2";
@@ -111,13 +116,13 @@ public class DefaultJavaWalkerTest {
         File sampleDir = initFolder("src/test/resources/test1/subfolder");
         File sampleDir2 = initFolder("src/test/resources/test2");
         File fooClass = createJavaFile("Foo", sampleDir);
-        
+
         CompilationUnit cu = new DefaultJavaParser().parse(fooClass);
-          
+
         walker.resolveSourceSubdirs(fooClass, cu);
-      
+
         File file = walker.resolveFile(cu);
-        
+
         Assert.assertEquals(new File(new File(sampleDir2, "subfolder"), "Foo.java").getCanonicalPath(), file.getPath());
     }
 
@@ -140,18 +145,20 @@ public class DefaultJavaWalkerTest {
 
     @Test
     public void testExceptionsMustDefineTheAffectedSourceFile() throws Exception {
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return "src/test/resources/test1";
             }
+
             @Override
             protected String getWriterPath() {
                 return "src/test/resources/test2";
             }
         };
         File sampleDir = initFolder("src/test/resources/test1");
-        File fooClass= createJavaFile("Foo", sampleDir);
+        File fooClass = createJavaFile("Foo", sampleDir);
         List<Object> visitors = new LinkedList<Object>();
         VisitorWithException instance = new VisitorWithException();
         visitors.add(instance);
@@ -183,12 +190,14 @@ public class DefaultJavaWalkerTest {
 
     @Test
     public void testExceptionsOnAnalysisSemantic() throws Exception {
-        
-        DefaultJavaWalker walker = new DefaultJavaWalker(){
+
+        DefaultJavaWalker walker = new DefaultJavaWalker() {
+
             @Override
             protected String getReaderPath() {
                 return "src/test/resources/test1";
             }
+
             @Override
             protected String getWriterPath() {
                 return "src/test/resources/test2";
@@ -197,7 +206,7 @@ public class DefaultJavaWalkerTest {
         File sampleDir = initFolder("src/test/resources/test1");
 
         File fooClass = createJavaFile("Foo", sampleDir);
-     
+
         FileUtils.write(fooClass, "import bar.InvalidClass; public class Foo {}");
         List<Object> visitors = new LinkedList<Object>();
         EmptySemanticVisitor instance = new EmptySemanticVisitor();
@@ -230,6 +239,7 @@ public class DefaultJavaWalkerTest {
     }
 
     public class VisitorWithException extends VoidVisitorAdapter<VisitorContext> {
+
         @Override
         public void visit(CompilationUnit cu, VisitorContext vc) {
             throw new RuntimeException("Hello");
@@ -238,6 +248,5 @@ public class DefaultJavaWalkerTest {
 
     @RequiresSemanticAnalysis
     public class EmptySemanticVisitor extends VoidVisitorAdapter<VisitorContext> {
-
     }
 }

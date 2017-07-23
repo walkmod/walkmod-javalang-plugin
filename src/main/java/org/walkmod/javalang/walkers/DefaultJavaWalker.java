@@ -1,18 +1,19 @@
-/* 
-  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
- 
- Walkmod is free software: you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- Walkmod is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Lesser General Public License for more details.
- 
- You should have received a copy of the GNU Lesser General Public License
- along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ *
+ * Walkmod is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * Walkmod is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Walkmod. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package org.walkmod.javalang.walkers;
 
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.walkmod.conf.entities.Configuration;
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.javalang.actions.Action;
@@ -91,9 +93,7 @@ public class DefaultJavaWalker extends AbstractWalker {
         visit(file);
     }
 
-    public DefaultJavaWalker() {
-
-    }
+    public DefaultJavaWalker() {}
 
     public void setSilent(Boolean silent) {
         this.silent = silent;
@@ -173,8 +173,8 @@ public class DefaultJavaWalker extends AbstractWalker {
         super.execute();
         deleteClassLoader();
     }
-    
-    private void deleteClassLoader(){
+
+    private void deleteClassLoader() {
         getChainConfig().getConfiguration().getParameters().remove("classLoader");
     }
 
@@ -187,8 +187,8 @@ public class DefaultJavaWalker extends AbstractWalker {
                 if (current.getClass().isAnnotationPresent(RequiresSemanticAnalysis.class)) {
                     requiresSemanticAnalysis = true;
                     if (visitOnFailure == null) {
-                        RequiresSemanticAnalysis annotation = current.getClass()
-                                .getAnnotation(RequiresSemanticAnalysis.class);
+                        RequiresSemanticAnalysis annotation =
+                                current.getClass().getAnnotation(RequiresSemanticAnalysis.class);
 
                         visitOnFailure = annotation.optional();
                     }
@@ -202,7 +202,8 @@ public class DefaultJavaWalker extends AbstractWalker {
 
             ClassLoader cl = getClassLoader();
             if (cl != null) {
-                SymbolVisitorAdapter<HashMap<String, Object>> visitor = new SymbolVisitorAdapter<HashMap<String, Object>>();
+                SymbolVisitorAdapter<HashMap<String, Object>> visitor =
+                        new SymbolVisitorAdapter<HashMap<String, Object>>();
                 visitor.setClassLoader(cl);
                 try {
                     visitor.visit(cu, new HashMap<String, Object>());
@@ -212,13 +213,11 @@ public class DefaultJavaWalker extends AbstractWalker {
                             "Error processing the analysis of [" + cu.getQualifiedName() + "]", e);
                     ex.setStackTrace(e.getStackTrace());
                     throw ex;
-
                 }
             } else {
                 throw new SemanticAnalysisException("There is no available project classpath to compile the sources");
             }
         }
-
     }
 
     protected void addConstraints(CompilationUnit cu) {
@@ -376,7 +375,6 @@ public class DefaultJavaWalker extends AbstractWalker {
             writeNewCU(element, vc, cu);
         } else {
             overwrite(element, vc, originalFile);
-
         }
     }
 
@@ -389,7 +387,6 @@ public class DefaultJavaWalker extends AbstractWalker {
         if (!silent) {
             log.debug(resolveFile(returningCU) + " [ written ]");
         }
-
     }
 
     protected void createOrUpdateExternalCU(Object element, VisitorContext vc, CompilationUnit returningCU)
@@ -411,7 +408,6 @@ public class DefaultJavaWalker extends AbstractWalker {
                         log.debug(originalFile.getPath() + " [not written] ");
                     }
                 }
-
             }
         }
     }
@@ -467,7 +463,6 @@ public class DefaultJavaWalker extends AbstractWalker {
                     } else {
                         createOrUpdateExternalCU(element, vc, returningCU);
                     }
-
                 }
             } else {
                 if (!silent) {
@@ -609,5 +604,4 @@ public class DefaultJavaWalker extends AbstractWalker {
     public void setRequiresSemanticAnalysis(boolean requiresSemanticAnalysis) {
         this.requiresSemanticAnalysis = requiresSemanticAnalysis;
     }
-
 }

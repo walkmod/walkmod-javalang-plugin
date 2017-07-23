@@ -1,18 +1,19 @@
-/* 
-  Copyright (C) 2013 Raquel Pau and Albert Coroleu.
- 
- Walkmod is free software: you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- Walkmod is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Lesser General Public License for more details.
- 
- You should have received a copy of the GNU Lesser General Public License
- along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
+/*
+ * Copyright (C) 2013 Raquel Pau and Albert Coroleu.
+ *
+ * Walkmod is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * Walkmod is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Walkmod. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.walkmod.javalang.walkers;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.Properties;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+
 import org.walkmod.exceptions.WalkModException;
 import org.walkmod.javalang.actions.Action;
 import org.walkmod.javalang.actions.AppendAction;
@@ -208,7 +210,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     if (aux < 0) {
                         aux = aux * (-1);
                     }
-
                 }
                 if (aux > 0) {
                     indentationSize = aux;
@@ -350,18 +351,15 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     if (!added) {
                         actionsToApply.add(0, action);
                     }
-
                 }
 
             } else {
                 action = new RemoveAction(beginLine, beginColumn, oi.getEndLine(), oi.getEndColumn(), oi);
                 actionsToApply.add(action);
-
             }
         }
 
         increaseDeletedNodes(oi.getClass());
-
     }
 
     private void applyAppend(Node id) {
@@ -534,7 +532,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             if (nodes2 != null) {
                 for (T elem : nodes2) {
                     applyRemove(elem);
-
                 }
             }
         }
@@ -566,7 +563,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 }
             }
         }
-
     }
 
     private <T extends Node> void inferASTChanges(T n1, T n2) {
@@ -805,8 +801,10 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             setIsUpdated(false);
 
             MethodDeclaration aux = (MethodDeclaration) o;
-            boolean equals = n.getName().equals(aux.getName()) && n.getArrayCount() == aux.getArrayCount()
-                    && n.getModifiers() == aux.getModifiers() && n.isDefault() == aux.isDefault();
+            boolean equals = n.getName().equals(aux.getName())
+                    && n.getArrayCount() == aux.getArrayCount()
+                    && n.getModifiers() == aux.getModifiers()
+                    && n.isDefault() == aux.isDefault();
             Position pos = popPosition();
             pushPosition(aux);
             inferASTChanges(n.getJavaDoc(), aux.getJavaDoc());
@@ -965,7 +963,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         } else if (!otherProperty.equals(theseProperty)) {
             applyUpdate(thisNode, (Node) other);
         }
-
     }
 
     public void visit(EnumDeclaration n, VisitorContext ctx) {
@@ -1023,9 +1020,9 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             String nName = n.getName();
             String auxName = aux.getName();
 
-            boolean equals = ((nName == null && auxName == null)
-                    || (nName != null && auxName != null && nName.equals(auxName)))
-                    && n.getModifiers() == aux.getModifiers();
+            boolean equals =
+                    ((nName == null && auxName == null) || (nName != null && auxName != null && nName.equals(auxName)))
+                            && n.getModifiers() == aux.getModifiers();
 
             Position pos = popPosition();
             pushPosition(aux);
@@ -1499,7 +1496,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         Object o = ctx.get(NODE_TO_COMPARE_KEY);
         if (o != null) {
             increaseUnmodifiedNodes(VoidType.class);
-
         }
     }
 
@@ -2012,7 +2008,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 setIsUpdated(backup || isUpdated());
             }
 
-
         } else if (o != null) {
             setIsUpdated(true);
             applyUpdate(n, (Node) o);
@@ -2380,7 +2375,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             setIsUpdated(true);
             applyUpdate(n, (Node) o);
         }
-
     }
 
     public void visit(LabeledStmt n, VisitorContext ctx) {
@@ -2905,5 +2899,4 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
     public Deque<Position> getPositionStack() {
         return new ArrayDeque<Position>(position);
     }
-
 }

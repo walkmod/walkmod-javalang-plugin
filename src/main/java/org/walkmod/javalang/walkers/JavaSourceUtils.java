@@ -22,7 +22,7 @@ public class JavaSourceUtils {
     }
 
     public static String getRelativePath(File file, CompilationUnit cu) throws Exception {
-      
+
         String cuPath = "";
 
         PackageDeclaration pd = cu.getPackage();
@@ -36,5 +36,4 @@ public class JavaSourceUtils {
         }
         return cuPath;
     }
-
 }

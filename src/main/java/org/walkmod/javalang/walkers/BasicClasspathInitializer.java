@@ -4,12 +4,9 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+
 import org.walkmod.conf.ConfigurationException;
 import org.walkmod.conf.ConfigurationProvider;
 import org.walkmod.conf.entities.Configuration;
@@ -39,8 +36,8 @@ public class BasicClasspathInitializer implements ConfigurationProvider {
 
     protected File[] getSourceFiles() throws Exception {
         File rootDir = new File(path).getCanonicalFile();
-        Collection<File> files = FileUtils.listFiles(rootDir, new String[] { "java" }, true);
-        
+        Collection<File> files = FileUtils.listFiles(rootDir, new String[] {"java"}, true);
+
         File[] finalResult = new File[files.size()];
         files.toArray(finalResult);
         return finalResult;
@@ -59,13 +56,11 @@ public class BasicClasspathInitializer implements ConfigurationProvider {
             compiler.compile(compilationDir, getSourceFiles());
 
             configuration.getParameters().put("classLoader",
-                    new URLClassLoader(new URL[] { compilationDir.toURI().toURL() }));
+                    new URLClassLoader(new URL[] {compilationDir.toURI().toURL()}));
         } catch (Exception e) {
             throw new ConfigurationException(
                     "Error compiling sources. Please configure the walkmod-rawclasspath-plugin to define the external libraries of this project.",
                     e);
         }
-
     }
-
 }
