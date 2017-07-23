@@ -80,14 +80,14 @@ public class PatchWriter extends AbstractPatchWriter {
             StringBuffer buffer = new StringBuffer();
 
             List<Action> actions = (List<Action>) vc.get(DefaultJavaWalker.ACTIONS_TO_APPY_KEY);
-            List<Patch> patches = new LinkedList<Patch>();
+            List<Patch> patches = new LinkedList<>();
 
             if (isPatchPerFile()) {
                 patches.add(generatePatch(buffer, actions, original, true));
             }
             if (isPatchPerChange()) {
                 for (Action action : actions) {
-                    LinkedList<Action> singleAction = new LinkedList<Action>();
+                    LinkedList<Action> singleAction = new LinkedList<>();
                     singleAction.add(action);
                     patches.add(generatePatch(buffer, singleAction, original, false));
                 }

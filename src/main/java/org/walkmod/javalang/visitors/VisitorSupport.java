@@ -32,9 +32,9 @@ public abstract class VisitorSupport<A> extends VoidVisitorAdapter<A> implements
 
     public void initialize(VisitorContext context, Object rootNode) {
         if (queryEngine == null) {
-            Map<String, Object> parameters = new HashMap<String, Object>();
+            Map<String, Object> parameters = new HashMap<>();
             parameters.put("language", "groovy");
-            List<String> includes = new LinkedList<String>();
+            List<String> includes = new LinkedList<>();
             includes.add("query.alias.groovy");
             parameters.put("includes", includes);
 
@@ -49,7 +49,7 @@ public abstract class VisitorSupport<A> extends VoidVisitorAdapter<A> implements
             }
         }
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("node", rootNode);
         queryEngine.initialize(context, params);
     }

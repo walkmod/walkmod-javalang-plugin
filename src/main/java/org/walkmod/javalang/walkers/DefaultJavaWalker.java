@@ -60,13 +60,13 @@ public class DefaultJavaWalker extends AbstractWalker {
 
     private boolean silent = false;
 
-    private Map<String, Integer> added = new HashMap<String, Integer>();
+    private Map<String, Integer> added = new HashMap<>();
 
-    private Map<String, Integer> deleted = new HashMap<String, Integer>();
+    private Map<String, Integer> deleted = new HashMap<>();
 
-    private Map<String, Integer> updated = new HashMap<String, Integer>();
+    private Map<String, Integer> updated = new HashMap<>();
 
-    private Map<String, Integer> unmodified = new HashMap<String, Integer>();
+    private Map<String, Integer> unmodified = new HashMap<>();
 
     private String encoding = "UTF-8";
 
@@ -162,7 +162,7 @@ public class DefaultJavaWalker extends AbstractWalker {
         List<String> consProv = getConstraintProviders();
         if (consProv != null) {
             Configuration conf = getChainConfig().getConfiguration();
-            constraintProv = new LinkedList<ConstraintProvider<?>>();
+            constraintProv = new LinkedList<>();
             for (String cons : consProv) {
                 if (conf.containsBean(cons)) {
                     ConstraintProvider<?> cp = (ConstraintProvider) conf.getBean(cons, null);
@@ -203,7 +203,7 @@ public class DefaultJavaWalker extends AbstractWalker {
             ClassLoader cl = getClassLoader();
             if (cl != null) {
                 SymbolVisitorAdapter<HashMap<String, Object>> visitor =
-                        new SymbolVisitorAdapter<HashMap<String, Object>>();
+                        new SymbolVisitorAdapter<>();
                 visitor.setClassLoader(cl);
                 try {
                     visitor.visit(cu, new HashMap<String, Object>());
@@ -222,7 +222,7 @@ public class DefaultJavaWalker extends AbstractWalker {
 
     protected void addConstraints(CompilationUnit cu) {
         if (constraintProv != null) {
-            List<Constraint> constraints = new LinkedList<Constraint>();
+            List<Constraint> constraints = new LinkedList<>();
             for (ConstraintProvider cp : constraintProv) {
                 Constraint<?> c = cp.getConstraint(cu);
                 constraints.add(c);

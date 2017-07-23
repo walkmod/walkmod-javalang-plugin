@@ -37,7 +37,7 @@ public class GroovyTemplateEngine extends VisitorSupport<VisitorContext> impleme
 
     private GStringTemplateEngine engine;
 
-    private Map<String, Template> cache = new HashMap<String, Template>();
+    private Map<String, Template> cache = new HashMap<>();
 
     @Override
     public void initialize(VisitorContext context, Object rootNode) {
@@ -56,7 +56,7 @@ public class GroovyTemplateEngine extends VisitorSupport<VisitorContext> impleme
                 throw new WalkModException(e);
             }
         }
-        Map<String, Object> bindings = new HashMap<String, Object>();
+        Map<String, Object> bindings = new HashMap<>();
         bindings.putAll(context);
         bindings.put("query", getQueryEngine());
         Writable wr = template.make(bindings);

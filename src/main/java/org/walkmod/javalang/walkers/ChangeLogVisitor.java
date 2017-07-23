@@ -159,21 +159,21 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private boolean generateActions = true;
 
-    private LinkedList<Action> actionsToApply = new LinkedList<Action>();
+    private LinkedList<Action> actionsToApply = new LinkedList<>();
 
     private int indentationLevel = 0;
 
     private int indentationSize = 0;
 
-    private List<Comment> comments = new LinkedList<Comment>();
+    private List<Comment> comments = new LinkedList<>();
 
-    private Stack<Position> position = new Stack<Position>();
+    private Stack<Position> position = new Stack<>();
 
     public ChangeLogVisitor() {
-        addedNodes = new HashMap<String, Integer>();
-        deletedNodes = new HashMap<String, Integer>();
-        updatedNodes = new HashMap<String, Integer>();
-        unmodifiedNodes = new HashMap<String, Integer>();
+        addedNodes = new HashMap<>();
+        deletedNodes = new HashMap<>();
+        updatedNodes = new HashMap<>();
+        unmodifiedNodes = new HashMap<>();
         setReportingPropertiesPath(reportingPropertiesPath);
 
         pushPosition(new Position(0, 0));
@@ -449,7 +449,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     private <T extends Node> void inferASTChanges(List<T> nodes1, List<T> nodes2) {
         if (nodes1 != null) {
-            List<Integer> removedNodes = new LinkedList<Integer>();
+            List<Integer> removedNodes = new LinkedList<>();
             if (nodes2 != null) {
                 int i = 0;
                 for (T oi : nodes2) {
@@ -604,8 +604,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 // we print the new comments at the beginning if they are not
                 // javadoc
                 if (n.getComments() != null) {
-                    List<Comment> newComments = new LinkedList<Comment>();
-                    thisComments = new LinkedList<Comment>(n.getComments());
+                    List<Comment> newComments = new LinkedList<>();
+                    thisComments = new LinkedList<>(n.getComments());
                     Iterator<Comment> it = thisComments.iterator();
                     while (it.hasNext()) {
                         Comment c = it.next();
@@ -618,11 +618,11 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                             it.remove();
                         }
                     }
-                    comments = new LinkedList<Comment>(thisComments);
+                    comments = new LinkedList<>(thisComments);
                     inferASTChanges(newComments, null);
                 }
                 if (oldCU.getComments() != null) {
-                    otherComments = new LinkedList<Comment>(oldCU.getComments());
+                    otherComments = new LinkedList<>(oldCU.getComments());
                     Iterator<Comment> oldIt = otherComments.iterator();
                     while (oldIt.hasNext()) {
                         Comment c = oldIt.next();
@@ -650,8 +650,8 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                 }
 
                 inferASTChanges(n.getImports(), oldCU.getImports());
-                List<Action> importsActions = new LinkedList<Action>(actionsToApply);
-                actionsToApply = new LinkedList<Action>();
+                List<Action> importsActions = new LinkedList<>(actionsToApply);
+                actionsToApply = new LinkedList<>();
                 inferASTChanges(n.getTypes(), oldCU.getTypes());
                 inferASTChanges(thisComments, otherComments);
 
@@ -2803,7 +2803,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         if (properties == null) {
             return addedNodes;
         } else {
-            Map<String, Integer> result = new HashMap<String, Integer>();
+            Map<String, Integer> result = new HashMap<>();
             Collection<Object> keys = properties.keySet();
             if (keys != null) {
                 for (Object key : keys) {
@@ -2824,7 +2824,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         if (properties == null) {
             return deletedNodes;
         } else {
-            Map<String, Integer> result = new HashMap<String, Integer>();
+            Map<String, Integer> result = new HashMap<>();
             Collection<Object> keys = properties.keySet();
             if (keys != null) {
                 for (Object key : keys) {
@@ -2845,7 +2845,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         if (properties == null) {
             return updatedNodes;
         } else {
-            Map<String, Integer> result = new HashMap<String, Integer>();
+            Map<String, Integer> result = new HashMap<>();
             Collection<Object> keys = properties.keySet();
             if (keys != null) {
                 for (Object key : keys) {
@@ -2866,7 +2866,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
         if (properties == null) {
             return unmodifiedNodes;
         } else {
-            Map<String, Integer> result = new HashMap<String, Integer>();
+            Map<String, Integer> result = new HashMap<>();
             Collection<Object> keys = properties.keySet();
             if (keys != null) {
                 for (Object key : keys) {
@@ -2897,6 +2897,6 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
 
     // for testing
     public Deque<Position> getPositionStack() {
-        return new ArrayDeque<Position>(position);
+        return new ArrayDeque<>(position);
     }
 }
