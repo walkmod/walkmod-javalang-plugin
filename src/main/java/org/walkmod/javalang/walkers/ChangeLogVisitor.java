@@ -2028,7 +2028,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             if (n.getName().equals(aux.getName())) {
                 increaseUnmodifiedNodes(NameExpr.class);
             } else {
-                applyUpdate((Node) o, n);
+                applyUpdate(n, (Node) o);
                 increaseUpdatedNodes(NameExpr.class);
             }
             setIsUpdated(backup || isUpdated());
