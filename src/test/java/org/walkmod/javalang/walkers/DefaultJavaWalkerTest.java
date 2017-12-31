@@ -34,6 +34,22 @@ public class DefaultJavaWalkerTest {
         
         Assert.assertEquals("subfolder"+File.separator, walker.getSourceSubdirectories());
     }
+
+    @Test(expected = InvalidSourceDirectoryException.class)
+    public void when_compilationunit_contains_invalid_package_then_exception_is_thrown() throws Exception {
+        DefaultJavaWalker walker = new DefaultJavaWalker(){
+            @Override
+            protected String getReaderPath() {
+                return ".";
+            }
+        };
+        File sampleDir = new File(".");
+        File fooClass = createInvalidJavaFile("Foo", sampleDir);
+
+        walker.resolveSourceSubdirs(fooClass, new DefaultJavaParser().parse(fooClass));
+        fooClass.delete();
+        walker.getSourceSubdirectories();
+    }
     
     @Test
     public void when_compilationunit_is_in_root_dir_then_subfolder_is_empty() throws Exception {
@@ -135,6 +151,13 @@ public class DefaultJavaWalkerTest {
         File fooClass = new File(sampleDir, name + ".java");
         fooClass.createNewFile();
         FileUtils.write(fooClass, "public class " + name + " {}");
+        return fooClass;
+    }
+
+    private File createInvalidJavaFile(String name, File sampleDir) throws IOException {
+        File fooClass = new File(sampleDir, name + ".java");
+        fooClass.createNewFile();
+        FileUtils.write(fooClass, "package B; public class " + name + " {}");
         return fooClass;
     }
 

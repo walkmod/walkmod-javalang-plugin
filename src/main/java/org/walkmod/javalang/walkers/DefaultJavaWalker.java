@@ -242,8 +242,8 @@ public class DefaultJavaWalker extends AbstractWalker {
             }
 
             if (cu != null) {
-                resolveSourceSubdirs(file, cu);
                 try {
+                    resolveSourceSubdirs(file, cu);
                     performSemanticAnalysis(cu);
                     cu.withSymbols(true);
                     addConstraints(cu);
@@ -259,17 +259,21 @@ public class DefaultJavaWalker extends AbstractWalker {
                         }
                         return;
                     }
-                }
-
-            } else {
-                if (!silent) {
-                    log.warn("Empty compilation unit");
+                } catch (InvalidSourceDirectoryException e) {
+                    log.warn("The Java file " + file.getCanonicalPath() + " contains an invalid package.");
+                    return;
                 }
             }
+
+        } else {
+            if (!silent) {
+                log.warn("Empty compilation unit");
+            }
         }
+
     }
 
-    public void resolveSourceSubdirs(File file, CompilationUnit cu) throws Exception {
+    public void resolveSourceSubdirs(File file, CompilationUnit cu) throws IOException, InvalidSourceDirectoryException {
         sourceSubdirectories = JavaSourceUtils.getSourceDirs(getReaderPath(), file, cu);
     }
 

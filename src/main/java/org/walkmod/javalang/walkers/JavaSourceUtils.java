@@ -1,6 +1,7 @@
 package org.walkmod.javalang.walkers;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.PackageDeclaration;
@@ -8,7 +9,8 @@ import org.walkmod.javalang.ast.expr.NameExpr;
 
 public class JavaSourceUtils {
 
-    public static String getSourceDirs(String rootDir, File file, CompilationUnit cu) throws Exception {
+    public static String getSourceDirs(String rootDir, File file, CompilationUnit cu) throws IOException,
+            InvalidSourceDirectoryException {
         String readerFile = new File(rootDir).getCanonicalPath();
         if (!readerFile.endsWith(File.separator)) {
             readerFile += File.separator;
@@ -18,10 +20,13 @@ public class JavaSourceUtils {
         String cuPath = getRelativePath(file, cu);
 
         int srcIndex = path.indexOf(cuPath);
+        if (srcIndex < 0) {
+            throw new InvalidSourceDirectoryException();
+        }
         return path.substring(readerFile.length(), srcIndex);
     }
 
-    public static String getRelativePath(File file, CompilationUnit cu) throws Exception {
+    public static String getRelativePath(File file, CompilationUnit cu) throws IOException {
       
         String cuPath = "";
 
