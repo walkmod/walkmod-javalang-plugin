@@ -265,10 +265,6 @@ public class DefaultJavaWalker extends AbstractWalker {
                 }
             }
 
-        } else {
-            if (!silent) {
-                log.warn("Empty compilation unit");
-            }
         }
 
     }
