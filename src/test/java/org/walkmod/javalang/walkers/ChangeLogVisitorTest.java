@@ -1,4 +1,4 @@
-package org.walkmod.javalang.actions;
+package org.walkmod.javalang.walkers;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.walkmod.javalang.ASTManager;
+import org.walkmod.javalang.actions.*;
 import org.walkmod.javalang.ast.BlockComment;
 import org.walkmod.javalang.ast.Comment;
 import org.walkmod.javalang.ast.CompilationUnit;
@@ -33,24 +34,15 @@ import org.walkmod.javalang.ast.expr.MethodCallExpr;
 import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.ast.expr.NormalAnnotationExpr;
 import org.walkmod.javalang.ast.expr.ObjectCreationExpr;
-import org.walkmod.javalang.ast.stmt.BlockStmt;
-import org.walkmod.javalang.ast.stmt.BreakStmt;
-import org.walkmod.javalang.ast.stmt.ExpressionStmt;
-import org.walkmod.javalang.ast.stmt.IfStmt;
-import org.walkmod.javalang.ast.stmt.ReturnStmt;
-import org.walkmod.javalang.ast.stmt.Statement;
-import org.walkmod.javalang.ast.stmt.SwitchEntryStmt;
-import org.walkmod.javalang.ast.stmt.SwitchStmt;
+import org.walkmod.javalang.ast.stmt.*;
 import org.walkmod.javalang.ast.type.ClassOrInterfaceType;
 import org.walkmod.javalang.ast.type.PrimitiveType;
 import org.walkmod.javalang.ast.type.PrimitiveType.Primitive;
 import org.walkmod.javalang.ast.type.ReferenceType;
-import org.walkmod.javalang.walkers.ChangeLogVisitor;
-import org.walkmod.javalang.walkers.DefaultJavaParser;
 import org.walkmod.walkers.ParseException;
 import org.walkmod.walkers.VisitorContext;
 
-public class TestActionsInferred {
+public class ChangeLogVisitorTest {
 
    DefaultJavaParser parser = new DefaultJavaParser();
 
@@ -152,8 +144,6 @@ public class TestActionsInferred {
       newArgs.add(new NameExpr("e"));
 
       n.setArgs(newArgs);
-      //MethodCallExpr mce = new MethodCallExpr(n.getScope(), "info", newArgs);
-      //n.getParentNode().replaceChildNode(n, mce);
 
       List<Action> actions = getActions(cu2, cu);
       Assert.assertEquals(1, actions.size());
@@ -305,6 +295,20 @@ public class TestActionsInferred {
    }
 
    @Test
+   public void testRemoveStatementsAfterAnUpdatedMemberInABlock() throws Exception {
+      String modifiedCode = "public class A{ static{ \n  int x[] = null;\n }}";
+      CompilationUnit modifiedCu = parser.parse(modifiedCode, false);
+
+      String original = "public class A{ static{ \n  int[] x = null;\n System.out.println(1);\n }}";
+      CompilationUnit originalCu = parser.parse(original, false);
+
+      List<Action> actions = getActions(originalCu, modifiedCu);
+
+      Assert.assertEquals(2, actions.size());
+      Assert.assertTrue(actions.get(0).getBeginLine() < actions.get(1).getBeginLine());
+   }
+
+   @Test
    public void testRemoveEnumerationLiterals() throws Exception {
       String modifiedCode = "public enum A { FOO,      }";
       CompilationUnit modifiedCu = parser.parse(modifiedCode, false);
@@ -339,6 +343,27 @@ public class TestActionsInferred {
       Assert.assertEquals(ActionType.REMOVE, actions.get(1).getType());
 
       assertCode(actions, original, "public class A {  }");
+   }
+
+   @Test
+   public void testRemoveWithOtherPreviousAndNestedActions() throws Exception {
+      //the algorithm is breath first search and then, the append action is generated after the delete action.
+      // However, the order needs to be in the opposite way to write the actions properly in the text.
+      String modifiedCode = "public class A { void foo(String s) {  }  }";
+      CompilationUnit modifiedCu = parser.parse(modifiedCode, false);
+      MethodDeclaration md = (MethodDeclaration) modifiedCu.getTypes().get(0).getMembers().get(0);
+      List<Statement> statements = new LinkedList<Statement>();
+      statements.add(new EmptyStmt());
+      md.getBody().setStmts(statements);
+
+      String original = "public class A { void foo(String s) {  } void bar(){} }";
+      CompilationUnit originalCu = parser.parse(original, false);
+      List<Action> actions = getActions(originalCu, modifiedCu);
+
+      Assert.assertEquals(2, actions.size());
+
+      Assert.assertEquals(ActionType.APPEND, actions.get(0).getType());
+      Assert.assertEquals(ActionType.REMOVE, actions.get(1).getType());
    }
 
    @Test
