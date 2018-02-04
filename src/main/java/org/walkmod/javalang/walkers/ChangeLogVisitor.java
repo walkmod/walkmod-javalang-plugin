@@ -335,22 +335,7 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
                     isContained = last.contains(action);
                 }
                 if (!isContained) {
-                    inverseIt = actionsToApply.descendingIterator();
-                    boolean added = false;
-                    int pos = actionsToApply.size();
-                    while (inverseIt.hasNext() && !added) {
-                        Action current = inverseIt.next();
-                        if (action.isPreviousThan(current.getEndLine(), current.getEndColumn())) {
-                            pos--;
-                        } else {
-                            added = true;
-                            actionsToApply.add(pos, action);
-                        }
-                    }
-                    if (!added) {
-                        actionsToApply.add(0, action);
-                    }
-
+                    actionsToApply.add(positionToApply(action), action);
                 }
 
             } else {
@@ -378,9 +363,25 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             }
             action = new AppendAction(pos.getLine(), pos.getColumn(), id, indentationLevel, indentationSize,
                     extraLines);
-            actionsToApply.add(action);
+
+            actionsToApply.add(positionToApply(action), action);
         }
         increaseAddedNodes(id.getClass());
+    }
+
+    private int positionToApply(Action action) {
+        int position = actionsToApply.size();
+        Iterator<Action> inverseIt = actionsToApply.descendingIterator();
+        boolean isPrevious = true;
+
+        while(inverseIt.hasNext() && isPrevious) {
+            Action lastAction = inverseIt.next();
+            isPrevious = action.isPreviousThan(lastAction.getBeginLine(), lastAction.getBeginColumn());
+            if (isPrevious) {
+                position --;
+            }
+        }
+        return position;
     }
 
     private boolean requiresCurrentIndentation(Node node) {
@@ -417,29 +418,35 @@ public class ChangeLogVisitor extends VoidVisitorAdapter<VisitorContext> {
             if (!actionsToApply.isEmpty()) {
 
                 Iterator<Action> inverseIt = actionsToApply.descendingIterator();
-                boolean finish = false;
+
                 action = new RemoveAction(beginLine, beginColumn, oldNode.getEndLine(), oldNode.getEndColumn(),
                         oldNode);
                 boolean isComment = newNode instanceof Comment;
 
                 boolean isInternalComment = false;
-                while (inverseIt.hasNext() && !finish) {
+                int position = actionsToApply.size();
+                boolean overlaps = false;
+                while (inverseIt.hasNext() && !overlaps) {
                     Action last = inverseIt.next();
                     if (action.contains(last)) {
                         if (!isComment) {
                             inverseIt.remove();
+                            position --;
                         } else {
                             isInternalComment = true;
                         }
-                    } else if (isComment && !last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())) {
-                        //overlaps
-                        isInternalComment = true;
+                    } else {
+                        overlaps = last.contains(action); /*it has been already integrated*/
+                        if (!overlaps && !last.isPreviousThan(action.getBeginLine(), action.getBeginColumn())) {
+                            position --;
+                            isInternalComment = isComment;
+                        }
                     }
                 }
-                if (!isInternalComment) {
+                if (!isInternalComment && !overlaps) {
                     action = new ReplaceAction(beginLine, beginColumn, oldNode, newNode, indent, indentationSize,
                             comments);
-                    actionsToApply.add(action);
+                    actionsToApply.add(position, action);
                 }
 
             } else {
